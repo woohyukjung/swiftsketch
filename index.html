@@ -84,7 +84,7 @@
         .bg-matte-pad { transition: background-color 0.35s ease-out !important, color 0.35s ease-out !important; }
         .active-pad { background-color: #FF5500 !important; color: #1a1a1a !important; transition: none !important; }
         .active-btn { background-color: #FF5500 !important; color: #1a1a1a !important; }
-        .recording { background-color: #ff3333 !important; color: white !important; }
+        .recording { background-color: #FF5500 !important; color: #e0e0e0 !important; }
         .edit-select-mode { border: none !important; background-color: rgba(255, 85, 0, 0.35) !important; }
         /* 샘플(buffer)이 없는 빈 패드를 위한 어두운 스타일 */
         .edit-select-dim { border: none !important; background-color: rgba(255, 85, 0, 0.1) !important; opacity: 0.4; }
@@ -143,11 +143,13 @@
             <div class="grid grid-cols-4 w-full aspect-[4/1] gap-2 mb-2">
                 
                 <!-- Left: Waveform (3컬럼 차지 = 3/4) -->
-                <div class="col-span-3 h-full bg-matte-pad sq-element relative">
-                    <canvas id="waveform-canvas" class="w-full h-full absolute inset-0"></canvas>
-                    <div id="trim-controls" class="absolute inset-0 hidden-view pointer-events-none">
-                        <div id="trim-start-handle" class="absolute left-0 top-0 bottom-0 w-4 bg-[rgba(255,85,0,0.3)] pointer-events-auto cursor-ew-resize"></div>
-                        <div id="trim-end-handle" class="absolute right-0 top-0 bottom-0 w-4 bg-[rgba(255,85,0,0.3)] pointer-events-auto cursor-ew-resize"></div>
+                <div class="col-span-3 h-full bg-matte-pad sq-element relative waveform-frame overflow-hidden">
+                    <div class="absolute inset-[6px] bg-matte-bg rounded-[14px] p-[6px] box-border overflow-hidden">
+                        <canvas id="waveform-canvas" class="w-full h-full block"></canvas>
+                        <div id="trim-controls" class="absolute inset-0 hidden-view pointer-events-none">
+                            <div id="trim-start-handle" class="absolute left-0 top-[6px] bottom-[6px] w-1.5 bg-[rgba(0,229,255,0.6)] pointer-events-auto cursor-ew-resize rounded-l-sm rounded-r-none"></div>
+                            <div id="trim-end-handle" class="absolute right-0 top-[6px] bottom-[6px] w-1.5 bg-[rgba(0,229,255,0.6)] pointer-events-auto cursor-ew-resize rounded-r-sm rounded-l-none"></div>
+                        </div>
                     </div>
                 </div>
                 
@@ -157,18 +159,21 @@
                     <div id="top-right-main" class="absolute inset-0 flex flex-col gap-2">
                         <div class="flex-1 bg-matte-pad sq-element flex items-center justify-center px-1 p-0 m-0">
                             <div class="flex items-baseline justify-center">
-                                <input type="number" id="bpm-input" value="120" class="bg-transparent text-center text-neon-orange font-bold outline-none text-lg p-0 m-0 leading-none block" style="width: 3ch;" />
-                                <span class="text-xxs text-matte-dim font-bold uppercase leading-none block ml-1">BPM</span>
+                                <input type="number" id="bpm-input" value="120" class="bg-transparent text-center text-matte-text font-bold outline-none text-lg p-0 m-0 leading-none block" style="width: 3ch;" />
+<span class="text-xxs text-matte-dim font-bold uppercase leading-none block ml-1">BPM</span>
                             </div>
                         </div>
-                        <button id="btn-metronome" class="flex-1 bg-matte-pad sq-element text-xxs font-bold uppercase text-matte-dim active:bg-matte-dim transition-colors">
-                            Metro
+                        <button id="btn-metronome" class="flex-1 bg-matte-pad sq-element flex items-center justify-center gap-1.5 p-0 m-0 active:bg-matte-dim transition-colors">
+                            <div class="metro-dot w-2 h-2 rounded-full bg-[#e0e0e0] transition-colors duration-75"></div>
+                            <div class="metro-dot w-2 h-2 rounded-full bg-[#e0e0e0] transition-colors duration-75"></div>
+                            <div class="metro-dot w-2 h-2 rounded-full bg-[#e0e0e0] transition-colors duration-75"></div>
+                            <div class="metro-dot w-2 h-2 rounded-full bg-[#e0e0e0] transition-colors duration-75"></div>
                         </button>
                     </div>
                     <!-- Edit View Buttons -->
                     <div id="top-right-edit" class="absolute inset-0 flex flex-col gap-2 hidden-view">
-                        <button id="btn-mic-rec" class="flex-1 bg-matte-pad sq-element text-xs font-bold text-red-500 active:bg-red-500 active:text-white transition-colors">● Mic</button>
-                        <button id="btn-import" class="flex-1 bg-matte-pad sq-element text-xs font-bold text-neon-orange active:bg-neon-orange active:text-matte-bg transition-colors">Import</button>
+                        <button id="btn-mic-rec" class="flex-1 bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
+                        <button id="btn-import" class="flex-1 bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">IMPORT</button>
                         <input type="file" id="file-import" accept=".wav,.wave,.mp3,.m4a,.ogg,.aac,.flac" class="hidden" />
                     </div>
                 </div>
@@ -288,6 +293,7 @@
         let isRecordingPerf = false;
         let isMetronomeOn = false;
         let metronomeInterval = null;
+        let metroBeat = 0;
         
         let canvasCtx = DOM.canvas.getContext('2d');
         
@@ -533,26 +539,40 @@
             const width = DOM.canvas.width / dpr;
             const height = DOM.canvas.height / dpr;
             
-            canvasCtx.fillStyle = '#242424'; // pad color
+            canvasCtx.fillStyle = '#1a1a1a'; // 앱 배경색과 동일하게 처리
             canvasCtx.fillRect(0, 0, width, height);
             
             if (!buffer) return;
 
             const data = buffer.getChannelData(0);
             // Protect against trailing line by ensuring we only iterate valid data
-            const step = Math.ceil(data.length / width);
-            const amp = height / 2;
+            const lineWidth = 1.5;
+            const strokePaddingY = lineWidth; // 선 두께 고려 상하 안전 여백
+
+            const plotWidth = width;
+            const step = Math.ceil(data.length / plotWidth);
+            const centerY = height / 2;
+
+            // 전체 샘플 내 피크값 검색 (1.0을 넘어서는 스네어/노이즈 샘플 대응)
+            let maxPeak = 0;
+            for (let i = 0; i < data.length; i++) {
+                const absVal = Math.abs(data[i]);
+                if (absVal > maxPeak) maxPeak = absVal;
+            }
+            // 기본 스케일 한계는 1.0으로 두되, 피크가 1.0을 초과하면 해당 피크 기준으로 전체 파형을 축소
+            const scalePeak = Math.max(1.0, maxPeak);
+            const amp = ((height - strokePaddingY * 2) / 2) / scalePeak;
 
             if (trimStart > 0 || trimEnd < 1) {
-                canvasCtx.fillStyle = '#333333'; // trim area highlight
+                canvasCtx.fillStyle = 'rgba(0, 229, 255, 0.12)'; // 재생 선택 구간 은은한 네온 블루 하이라이트
                 canvasCtx.fillRect(trimStart * width, 0, (trimEnd - trimStart) * width, height);
             }
 
             canvasCtx.beginPath();
-            canvasCtx.strokeStyle = '#FF5500';
-            canvasCtx.lineWidth = 1.5;
+            canvasCtx.strokeStyle = '#00E5FF'; // 선명한 네온 블루 (#00E5FF)
+            canvasCtx.lineWidth = lineWidth;
 
-            for (let i = 0; i < width; i++) {
+            for (let i = 0; i < plotWidth; i++) {
                 let min = 1.0;
                 let max = -1.0;
                 let hasData = false;
@@ -568,23 +588,25 @@
                 }
                 
                 if (hasData) {
-                    const y1 = (1 + min) * amp;
-                    const y2 = (1 + max) * amp;
-                    if(i===0) canvasCtx.moveTo(i, y1);
-                    canvasCtx.moveTo(i, y1);
-                    canvasCtx.lineTo(i, y2);
+                    const x = i;
+                    const y1 = centerY + min * amp;
+                    const y2 = centerY + max * amp;
+
+                    if (i === 0) canvasCtx.moveTo(x, y1);
+                    canvasCtx.moveTo(x, y1);
+                    canvasCtx.lineTo(x, y2);
                 }
             }
-            canvasCtx.stroke(); // Draw strokes without trailing fill/close path
+            canvasCtx.stroke();
             
             if(isEditMode) updateTrimHandlesUI();
         }
 
         function resizeCanvasInternal() {
-            const parent = DOM.canvas.parentElement;
             const dpr = window.devicePixelRatio || 1;
-            const displayWidth = parent.clientWidth;
-            const displayHeight = parent.clientHeight;
+            const rect = DOM.canvas.getBoundingClientRect();
+            const displayWidth = rect.width;
+            const displayHeight = rect.height;
             if (DOM.canvas.width !== displayWidth * dpr || DOM.canvas.height !== displayHeight * dpr) {
                 DOM.canvas.width = displayWidth * dpr;
                 DOM.canvas.height = displayHeight * dpr;
@@ -788,6 +810,7 @@
                 };
                 micRecorder.start();
                 DOM.btnMicRec.classList.add('recording');
+                DOM.btnMicRec.classList.remove('text-neon-orange');
             } catch (err) {
                 console.error('Mic access denied:', err);
             }
@@ -796,7 +819,9 @@
         function stopMicRecord() {
             if (micRecorder && micRecorder.state === 'recording') {
                 micRecorder.stop();
+                // 약 550행
                 DOM.btnMicRec.classList.remove('recording');
+                DOM.btnMicRec.classList.add('text-neon-orange');
             }
         }
 
@@ -804,23 +829,38 @@
             if(!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.frequency.value = 1000;
+            osc.frequency.value = (metroBeat === 0) ? 1200 : 800; // 첫 박은 약간 명확한 톤으로 구분
             osc.connect(gain); gain.connect(masterGain);
             gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
             osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+
+            // 점 4개 순차 점등 제어 (0, 1, 2, 3 순환)
+            const dots = DOM.btnMetronome.querySelectorAll('.metro-dot');
+            dots.forEach((dot, idx) => {
+                if (idx === metroBeat) {
+                    dot.style.backgroundColor = '#FF5500';
+                } else {
+                    dot.style.backgroundColor = '#e0e0e0';
+                }
+            });
+
+            metroBeat = (metroBeat + 1) % 4;
         }
 
         DOM.btnMetronome.addEventListener('click', () => {
             isMetronomeOn = !isMetronomeOn;
-            DOM.btnMetronome.classList.toggle('text-neon-orange', isMetronomeOn);
             if (isMetronomeOn) {
                 initAudio();
+                metroBeat = 0;
                 const bpm = parseInt(DOM.bpmInput.value) || 120;
                 metronomeInterval = setInterval(playMetronomeTick, (60 / bpm) * 1000);
                 playMetronomeTick();
             } else {
                 clearInterval(metronomeInterval);
+                metroBeat = 0;
+                const dots = DOM.btnMetronome.querySelectorAll('.metro-dot');
+                dots.forEach(dot => dot.style.backgroundColor = '#e0e0e0');
             }
         });
 
@@ -858,12 +898,12 @@
                 };
                 mediaRecorder.start();
                 isRecordingPerf = true;
-                DOM.btnRecPerf.classList.add('bg-red-500', 'text-white');
+                DOM.btnRecPerf.classList.add('recording');
                 DOM.btnRecPerf.classList.remove('text-neon-orange');
             } else {
                 mediaRecorder.stop();
                 isRecordingPerf = false;
-                DOM.btnRecPerf.classList.remove('bg-red-500', 'text-white');
+                DOM.btnRecPerf.classList.remove('recording');
                 DOM.btnRecPerf.classList.add('text-neon-orange');
             }
         });
