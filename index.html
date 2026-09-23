@@ -59,22 +59,23 @@
             height: 100dvh;
             position: relative;
             box-sizing: border-box;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         #main-stage {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            position: relative;
             width: 100%;
+            flex: 0 0 auto;
         }
 
         #bottom-controls {
-            position: absolute;
-            left: 50%;
-            bottom: env(safe-area-inset-bottom, 0px);
-            transform: translateX(-50%);
+            position: relative;
             width: 100%;
+            margin-top: 60px;
+            flex: 0 0 auto;
         }
 
         /* Pad Highlights */
