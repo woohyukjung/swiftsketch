@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Swiftsketch Mobile Sampler</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard-variable.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Pretendard Variable"', 'Pretendard', 'Inter', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        matte: {
+                            bg: '#1a1a1a',
+                            pad: '#242424',
+                            dim: '#888888',
+                            text: '#e0e0e0'
+                        },
+                        neon: {
+                            orange: '#FF5500',
+                            green: '#39FF14'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            overflow: hidden;
+            touch-action: none; /* Prevent scrolling/zooming */
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Enforce rounded corners and no borders globally for UI elements */
+        .sq-element {
+            border-radius: 16px !important;
+            border: none !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            overflow: hidden;
+        }
+
+        /* Main Container Constraints */
+        #app-container {
+            width: 95vw;
+            max-width: 500px; /* Limit width on tablet/desktop */
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px 0;
+        }
+
+        /* Pad Highlights */
+        .active-pad { background-color: #FF5500 !important; color: #1a1a1a !important; }
+        .active-btn { background-color: #FF5500 !important; color: #1a1a1a !important; }
+        .recording { background-color: #ff3333 !important; color: white !important; }
+        .edit-select-mode { opacity: 0.5; border: 2px solid #FF5500 !important; } /* Only exception for border is selection highlight */
+
+        /* Vertical Range Slider Styling */
+        input[type=range].v-slider {
+            -webkit-appearance: slider-vertical;
+            appearance: slider-vertical;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            outline: none;
+            margin: 0;
+        }
+        
+        /* Custom horizontal slider for trim (if needed) or keeping it native for simplicity */
+        
+        /* Hide elements dynamically */
+        .hidden-view { display: none !important; }
+
+        /* Typography sizing for smaller buttons */
+        .text-xxs { font-size: 0.65rem; }
+
+        /* Chrome, Safari, Edge, Opera 브라우저의 number input 스피너 제거 및 높이 초기화 */
+
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Input 내부 텍스트 수직 중앙 정렬 강제 */
+        #bpm-input {
+            height: 1.2em;
+            line-height: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Fixed Width Container -->
+    <div id="app-container">
+
+        <!-- Top Section: Waveform & Global Settings -->
+        <!-- 기존 flex 대신 grid grid-cols-4 사용 -->
+        <div class="grid grid-cols-4 w-full h-[15%] min-h-[80px] gap-2">
+            
+            <!-- Left: Waveform (3컬럼 차지 = 3/4) -->
+            <div class="col-span-3 h-full bg-matte-pad sq-element relative">
+                <canvas id="waveform-canvas" class="w-full h-full absolute inset-0"></canvas>
+                <div id="trim-controls" class="absolute inset-0 hidden-view pointer-events-none">
+                    <div id="trim-start-handle" class="absolute left-0 top-0 bottom-0 w-4 bg-[rgba(255,85,0,0.3)] pointer-events-auto cursor-ew-resize"></div>
+                    <div id="trim-end-handle" class="absolute right-0 top-0 bottom-0 w-4 bg-[rgba(255,85,0,0.3)] pointer-events-auto cursor-ew-resize"></div>
+                </div>
+            </div>
+            
+            <!-- Right: Buttons (1컬럼 차지 = 1/4) -->
+            <div class="col-span-1 h-full relative">
+                <!-- Main View Buttons -->
+                <div id="top-right-main" class="absolute inset-0 flex flex-col gap-2">
+                    <div class="flex-1 bg-matte-pad sq-element flex flex-col items-center justify-center p-0 m-0">
+                        <span class="text-xxs text-matte-dim font-bold uppercase leading-none block mb-1">BPM</span>
+                        <input type="number" id="bpm-input" value="120" class="w-full bg-transparent text-center text-neon-orange font-bold outline-none text-lg p-0 m-0 leading-none block" />
+                    </div>
+                    <button id="btn-metronome" class="flex-1 bg-matte-pad sq-element text-xxs font-bold uppercase text-matte-dim active:bg-matte-dim transition-colors">
+                        Metro
+                    </button>
+                </div>
+                <!-- Edit View Buttons -->
+                <div id="top-right-edit" class="absolute inset-0 flex flex-col gap-2 hidden-view">
+                    <button id="btn-mic-rec" class="flex-1 bg-matte-pad sq-element text-xs font-bold text-red-500 active:bg-red-500 active:text-white transition-colors">● Mic</button>
+                    <button id="btn-import" class="flex-1 bg-matte-pad sq-element text-xs font-bold text-neon-orange active:bg-neon-orange active:text-matte-bg transition-colors">Import</button>
+                    <input type="file" id="file-import" accept="audio/*" class="hidden" />
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Middle Section: Square Grid Container -->
+        <div class="w-full flex items-center justify-center">
+            <!-- perfectly square aspect ratio container -->
+            <div class="relative w-full aspect-square">
+                
+                <!-- Main Pads Grid -->
+                <div id="pad-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full">
+                    <!-- Pads generated by JS -->
+                </div>
+
+                <!-- Edit View Grid -->
+                <div id="edit-view-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full hidden-view">
+                    <!-- Row 1 -->
+                    <button id="btn-reverse" class="col-span-1 row-span-1 bg-matte-pad sq-element text-xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">◀</button>
+                    <button id="btn-loop" class="col-span-1 row-span-1 bg-matte-pad sq-element text-2xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">↺</button>
+                    <div id="pitch-display" class="col-span-2 row-span-1 bg-matte-pad sq-element flex items-center justify-center text-neon-orange text-xl font-bold">0 st</div>
+                    
+                    <!-- Row 2 -->
+                    <button id="btn-edit-play" class="col-span-2 row-span-1 bg-matte-pad sq-element flex items-center justify-center active:bg-matte-dim transition-colors">
+                        <span class="text-4xl text-neon-green">▶</span>
+                    </button>
+                    <button id="btn-pitch-down" class="col-span-1 row-span-1 bg-matte-pad sq-element text-3xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">-</button>
+                    <button id="btn-pitch-up" class="col-span-1 row-span-1 bg-matte-pad sq-element text-3xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">+</button>
+                    
+                    <!-- Rows 3 & 4 (EQ & Vol) -->
+                    <div class="col-span-4 row-span-2 grid grid-cols-4 gap-2 h-full">
+                        <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
+                            <span class="text-xxs text-matte-dim font-bold mb-1">LOW</span>
+                            <input type="range" id="eq-low" class="v-slider flex-1" min="-12" max="12" value="0">
+                        </div>
+                        <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
+                            <span class="text-xxs text-matte-dim font-bold mb-1">MID</span>
+                            <input type="range" id="eq-mid" class="v-slider flex-1" min="-12" max="12" value="0">
+                        </div>
+                        <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
+                            <span class="text-xxs text-matte-dim font-bold mb-1">HIGH</span>
+                            <input type="range" id="eq-high" class="v-slider flex-1" min="-12" max="12" value="0">
+                        </div>
+                        <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
+                            <span class="text-xxs text-neon-orange font-bold mb-1">VOL</span>
+                            <input type="range" id="vol-slider" class="v-slider flex-1" min="0" max="2" step="0.05" value="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section: 2 Rows x 4 Cols Grid -->
+        <div class="w-full grid grid-cols-4 grid-rows-2 gap-2 mt-auto min-h-[80px]" style="height: 15%;">
+            <!-- Top Row -->
+            <button id="btn-edit-mode" class="col-span-2 row-span-1 bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">EDIT</button>
+            <button id="btn-rec-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
+            <button id="btn-play-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-green text-2xl flex items-center justify-center active:bg-neon-green active:text-matte-bg transition-colors">▶</button>
+            
+            <!-- Bottom Row -->
+            <div id="logo-text" class="col-span-3 row-span-1 flex items-end justify-start pl-1 pb-0.5 text-matte-text font-bold tracking-tighter lowercase leading-none select-none" style="font-size: 1.85rem;">
+                swiftsketch
+            </div>
+            <button id="btn-export" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-dim text-xs font-bold uppercase opacity-50 pointer-events-none transition-opacity flex items-center justify-center">EXP</button>
+        </div>
+
+    </div>
+
+    <script>
+        const DOM = {
+            padGrid: document.getElementById('pad-grid'),
+            editViewGrid: document.getElementById('edit-view-grid'),
+            canvas: document.getElementById('waveform-canvas'),
+            btnEditMode: document.getElementById('btn-edit-mode'),
+            topRightMain: document.getElementById('top-right-main'),
+            topRightEdit: document.getElementById('top-right-edit'),
+            trimControls: document.getElementById('trim-controls'),
+            trimStartHandle: document.getElementById('trim-start-handle'),
+            trimEndHandle: document.getElementById('trim-end-handle'),
+            btnMicRec: document.getElementById('btn-mic-rec'),
+            btnImport: document.getElementById('btn-import'),
+            fileImport: document.getElementById('file-import'),
+            btnReverse: document.getElementById('btn-reverse'),
+            btnLoop: document.getElementById('btn-loop'),
+            pitchDisplay: document.getElementById('pitch-display'),
+            btnPitchDown: document.getElementById('btn-pitch-down'),
+            btnPitchUp: document.getElementById('btn-pitch-up'),
+            btnEditPlay: document.getElementById('btn-edit-play'),
+            eqLow: document.getElementById('eq-low'),
+            eqMid: document.getElementById('eq-mid'),
+            eqHigh: document.getElementById('eq-high'),
+            volSlider: document.getElementById('vol-slider'),
+            bpmInput: document.getElementById('bpm-input'),
+            btnMetronome: document.getElementById('btn-metronome'),
+            btnRecPerf: document.getElementById('btn-rec-perf'),
+            btnPlayPerf: document.getElementById('btn-play-perf'),
+            btnExport: document.getElementById('btn-export')
+        };
+
+        const NUM_PADS = 16;
+        let audioCtx;
+        let masterGain;
+        let destNode;
+        let mediaRecorder;
+        let recordedChunks = [];
+        let performanceBlob = null;
+        let performanceAudioUrl = null;
+        let performanceAudio = null;
+
+        let isEditMode = false;
+        let isEditSelectionMode = false;
+        let currentEditPadId = 0;
+        let isRecordingPerf = false;
+        let isMetronomeOn = false;
+        let metronomeInterval = null;
+        
+        let canvasCtx = DOM.canvas.getContext('2d');
+        
+        const padsData = Array.from({length: NUM_PADS}, (_, i) => ({
+            id: i,
+            buffer: null,
+            originalBuffer: null,
+            reverse: false,
+            loop: false,
+            pitchSt: 0,
+            eq: { low: 0, mid: 0, high: 0 },
+            volume: 1.0,
+            trimStart: 0.0,
+            trimEnd: 1.0
+        }));
+
+        let activeSources = {}; // Track Web Audio buffer sources
+        let padIsPlaying = {}; // Track logical play state for toggle loops
+
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.connect(audioCtx.destination);
+            destNode = audioCtx.createMediaStreamDestination();
+            masterGain.connect(destNode);
+            generateDefaultSounds();
+            drawWaveform(null);
+        }
+
+        async function generateDefaultSounds() {
+            const sampleRate = audioCtx.sampleRate;
+            const makeBuffer = async (renderFunc, duration) => {
+                const offCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, sampleRate * duration, sampleRate);
+                renderFunc(offCtx);
+                return await offCtx.startRendering();
+            };
+
+            // Basic Drums (Kick, Snare, HiHats) on bottom row
+            padsData[12].buffer = padsData[12].originalBuffer = await makeBuffer(ctx => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                gain.gain.setValueAtTime(1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.start(0); osc.stop(0.5);
+            }, 0.5);
+
+            padsData[13].buffer = padsData[13].originalBuffer = await makeBuffer(ctx => {
+                const osc = ctx.createOscillator();
+                const noise = ctx.createBufferSource();
+                const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.2, ctx.sampleRate);
+                for (let i=0; i<noiseBuf.length; i++) noiseBuf.getChannelData(0)[i] = Math.random() * 2 - 1;
+                noise.buffer = noiseBuf;
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'highpass'; filter.frequency.value = 1000;
+                const og = ctx.createGain(), ng = ctx.createGain();
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(250, ctx.currentTime);
+                og.gain.setValueAtTime(1, ctx.currentTime); og.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                ng.gain.setValueAtTime(1, ctx.currentTime); ng.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc.connect(og); noise.connect(filter); filter.connect(ng);
+                og.connect(ctx.destination); ng.connect(ctx.destination);
+                osc.start(); noise.start();
+            }, 0.2);
+
+            padsData[14].buffer = padsData[14].originalBuffer = await makeBuffer(ctx => {
+                const noise = ctx.createBufferSource();
+                const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.1, ctx.sampleRate);
+                for (let i=0; i<noiseBuf.length; i++) noiseBuf.getChannelData(0)[i] = Math.random() * 2 - 1;
+                noise.buffer = noiseBuf;
+                const filter = ctx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 5000;
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+                noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination); noise.start();
+            }, 0.1);
+
+            padsData[15].buffer = padsData[15].originalBuffer = await makeBuffer(ctx => {
+                 const noise = ctx.createBufferSource();
+                const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.4, ctx.sampleRate);
+                for (let i=0; i<noiseBuf.length; i++) noiseBuf.getChannelData(0)[i] = Math.random() * 2 - 1;
+                noise.buffer = noiseBuf;
+                const filter = ctx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 5000;
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination); noise.start();
+            }, 0.4);
+
+            // Simple Synths for other pads
+            const freqs = [130.81, 155.56, 174.61, 196.00, 233.08, 261.63, 311.13, 349.23, 392.00, 466.16, 523.25, 622.25];
+            for(let i=0; i<12; i++) {
+                padsData[i].buffer = padsData[i].originalBuffer = await makeBuffer(ctx => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth'; osc.frequency.value = freqs[i];
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'lowpass'; filter.frequency.setValueAtTime(2000, ctx.currentTime);
+                    filter.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.5);
+                    osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+                    gain.gain.setValueAtTime(0.5, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                    osc.start(0); osc.stop(0.5);
+                }, 0.5);
+            }
+        }
+
+        function createPadElements() {
+            DOM.padGrid.innerHTML = '';
+            for (let i = 0; i < NUM_PADS; i++) {
+                const pad = document.createElement('div');
+                pad.className = 'bg-matte-pad sq-element touch-none cursor-pointer flex items-end p-1 transition-colors duration-75';
+                pad.dataset.id = i;
+                
+                pad.addEventListener('touchstart', (e) => { e.preventDefault(); handlePadDown(i, pad); });
+                pad.addEventListener('mousedown', (e) => { e.preventDefault(); handlePadDown(i, pad); });
+                pad.addEventListener('touchend', (e) => { e.preventDefault(); handlePadUp(i, pad); });
+                pad.addEventListener('mouseup', (e) => { e.preventDefault(); handlePadUp(i, pad); });
+                pad.addEventListener('mouseleave', (e) => { e.preventDefault(); handlePadUp(i, pad); });
+
+                DOM.padGrid.appendChild(pad);
+                padIsPlaying[i] = false;
+            }
+        }
+
+        function playPad(id) {
+            initAudio();
+            const pData = padsData[id];
+            if (!pData.buffer) return;
+
+            // Stop previous if exists to prevent overlap glitches
+            if (activeSources[id]) {
+                try { activeSources[id].stop(); } catch(e){}
+            }
+
+            const source = audioCtx.createBufferSource();
+            source.buffer = pData.buffer;
+            source.playbackRate.value = Math.pow(2, pData.pitchSt / 12);
+            source.loop = pData.loop;
+
+            const lowEQ = audioCtx.createBiquadFilter(); lowEQ.type = 'lowshelf'; lowEQ.frequency.value = 320; lowEQ.gain.value = pData.eq.low;
+            const midEQ = audioCtx.createBiquadFilter(); midEQ.type = 'peaking'; midEQ.frequency.value = 1000; midEQ.Q.value = 0.5; midEQ.gain.value = pData.eq.mid;
+            const highEQ = audioCtx.createBiquadFilter(); highEQ.type = 'highshelf'; highEQ.frequency.value = 3200; highEQ.gain.value = pData.eq.high;
+            const gainNode = audioCtx.createGain(); gainNode.gain.value = pData.volume;
+
+            source.connect(lowEQ); lowEQ.connect(midEQ); midEQ.connect(highEQ); highEQ.connect(gainNode);
+            gainNode.connect(masterGain);
+
+            const dur = pData.buffer.duration;
+            const startOffset = pData.trimStart * dur;
+            let playDuration = (pData.trimEnd - pData.trimStart) * dur;
+            if (playDuration < 0.01) playDuration = 0.01;
+
+            if (pData.loop) {
+                source.loopStart = startOffset;
+                source.loopEnd = startOffset + playDuration;
+                source.start(0, startOffset);
+            } else {
+                source.start(0, startOffset, playDuration);
+            }
+            activeSources[id] = source;
+
+            // Update UI
+            drawWaveform(pData.buffer, pData.trimStart, pData.trimEnd);
+            if(isEditMode) {
+                currentEditPadId = id;
+                updateEditUI();
+            }
+        }
+
+        function stopPad(id) {
+            if (activeSources[id]) {
+                try { activeSources[id].stop(); } catch(e){}
+                activeSources[id] = null;
+            }
+        }
+
+        function handlePadDown(id, el) {
+            if (isEditSelectionMode) {
+                openEditView(id);
+                return;
+            }
+            
+            const pData = padsData[id];
+            
+            if (pData.loop) {
+                // Toggle behavior for looped pads
+                if (padIsPlaying[id]) {
+                    stopPad(id);
+                    el.classList.remove('active-pad');
+                    padIsPlaying[id] = false;
+                } else {
+                    playPad(id);
+                    el.classList.add('active-pad');
+                    padIsPlaying[id] = true;
+                }
+            } else {
+                // Normal trigger behavior
+                playPad(id);
+                el.classList.add('active-pad');
+                padIsPlaying[id] = true;
+            }
+        }
+
+        function handlePadUp(id, el) {
+            if (isEditSelectionMode) return;
+            const pData = padsData[id];
+            
+            // 루프 모드가 아닐 때: 손을 떼면 불빛만 끄고 오디오는 끝까지 재생되게 함
+            if (!pData.loop) {
+                // stopPad(id);  <-- 지우거나 주석 처리!
+                el.classList.remove('active-pad');
+                padIsPlaying[id] = false;
+            }
+        }
+
+        let isResizing = false;
+        function drawWaveform(buffer, trimStart = 0, trimEnd = 1) {
+            if (!isResizing) resizeCanvasInternal();
+            
+            const width = DOM.canvas.width;
+            const height = DOM.canvas.height;
+            
+            canvasCtx.fillStyle = '#242424'; // pad color
+            canvasCtx.fillRect(0, 0, width, height);
+            
+            if (!buffer) return;
+
+            const data = buffer.getChannelData(0);
+            // Protect against trailing line by ensuring we only iterate valid data
+            const step = Math.ceil(data.length / width);
+            const amp = height / 2;
+
+            canvasCtx.fillStyle = '#333333'; // slight highlight for trim area
+            canvasCtx.fillRect(trimStart*width, 0, (trimEnd-trimStart)*width, height);
+
+            canvasCtx.beginPath();
+            canvasCtx.strokeStyle = '#FF5500';
+            canvasCtx.lineWidth = 1.5;
+
+            for (let i = 0; i < width; i++) {
+                let min = 1.0;
+                let max = -1.0;
+                let hasData = false;
+                
+                for (let j = 0; j < step; j++) {
+                    const dataIndex = (i * step) + j;
+                    if (dataIndex < data.length) {
+                        hasData = true;
+                        const datum = data[dataIndex];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
+                    }
+                }
+                
+                if (hasData) {
+                    const y1 = (1 + min) * amp;
+                    const y2 = (1 + max) * amp;
+                    if(i===0) canvasCtx.moveTo(i, y1);
+                    canvasCtx.moveTo(i, y1);
+                    canvasCtx.lineTo(i, y2);
+                }
+            }
+            canvasCtx.stroke(); // Draw strokes without trailing fill/close path
+            
+            if(isEditMode) updateTrimHandlesUI();
+        }
+
+        function resizeCanvasInternal() {
+            const parent = DOM.canvas.parentElement;
+            if (DOM.canvas.width !== parent.clientWidth || DOM.canvas.height !== parent.clientHeight) {
+                DOM.canvas.width = parent.clientWidth;
+                DOM.canvas.height = parent.clientHeight;
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            isResizing = true;
+            resizeCanvasInternal();
+            if(padsData && padsData[currentEditPadId] && isEditMode) {
+                drawWaveform(padsData[currentEditPadId].buffer, padsData[currentEditPadId].trimStart, padsData[currentEditPadId].trimEnd);
+            } else if (!isEditMode) {
+                drawWaveform(null); 
+            }
+            isResizing = false;
+        });
+
+        DOM.btnEditMode.addEventListener('click', () => {
+            if (isEditMode) {
+                closeEditView();
+            } else {
+                isEditSelectionMode = !isEditSelectionMode;
+                DOM.btnEditMode.classList.toggle('active-btn', isEditSelectionMode);
+                DOM.btnEditMode.innerText = isEditSelectionMode ? 'TAP PAD' : 'EDIT';
+                
+                Array.from(DOM.padGrid.children).forEach(pad => {
+                    if(isEditSelectionMode) pad.classList.add('edit-select-mode');
+                    else pad.classList.remove('edit-select-mode');
+                });
+            }
+        });
+
+        function openEditView(id) {
+            isEditSelectionMode = false;
+            isEditMode = true;
+            currentEditPadId = id;
+            
+            Array.from(DOM.padGrid.children).forEach(pad => pad.classList.remove('edit-select-mode'));
+            DOM.padGrid.classList.add('hidden-view');
+            DOM.editViewGrid.classList.remove('hidden-view');
+            DOM.topRightMain.classList.add('hidden-view');
+            DOM.topRightEdit.classList.remove('hidden-view');
+            DOM.trimControls.classList.remove('hidden-view');
+            
+            DOM.btnEditMode.innerText = 'BACK';
+            DOM.btnEditMode.classList.add('active-btn');
+            
+            updateEditUI();
+            drawWaveform(padsData[currentEditPadId].buffer, padsData[currentEditPadId].trimStart, padsData[currentEditPadId].trimEnd);
+        }
+
+        function closeEditView() {
+            isEditMode = false;
+            DOM.editViewGrid.classList.add('hidden-view');
+            DOM.padGrid.classList.remove('hidden-view');
+            DOM.topRightEdit.classList.add('hidden-view');
+            DOM.topRightMain.classList.remove('hidden-view');
+            DOM.trimControls.classList.add('hidden-view');
+            
+            DOM.btnEditMode.innerText = 'EDIT';
+            DOM.btnEditMode.classList.remove('active-btn');
+            drawWaveform(null);
+        }
+
+        function updateEditUI() {
+            const pData = padsData[currentEditPadId];
+            DOM.btnReverse.classList.toggle('active-btn', pData.reverse);
+            DOM.btnLoop.classList.toggle('active-btn', pData.loop);
+            DOM.pitchDisplay.innerText = `${pData.pitchSt > 0 ? '+' : ''}${pData.pitchSt} st`;
+            DOM.eqLow.value = pData.eq.low;
+            DOM.eqMid.value = pData.eq.mid;
+            DOM.eqHigh.value = pData.eq.high;
+            DOM.volSlider.value = pData.volume;
+            updateTrimHandlesUI();
+        }
+
+        DOM.btnReverse.addEventListener('click', () => {
+            const pData = padsData[currentEditPadId];
+            pData.reverse = !pData.reverse;
+            if (pData.originalBuffer) {
+                const newBuffer = audioCtx.createBuffer(pData.originalBuffer.numberOfChannels, pData.originalBuffer.length, pData.originalBuffer.sampleRate);
+                for (let c = 0; c < pData.originalBuffer.numberOfChannels; c++) {
+                    const chData = new Float32Array(pData.originalBuffer.getChannelData(c));
+                    if (pData.reverse) chData.reverse();
+                    newBuffer.copyToChannel(chData, c);
+                }
+                pData.buffer = newBuffer;
+            }
+            updateEditUI();
+            drawWaveform(pData.buffer, pData.trimStart, pData.trimEnd);
+        });
+
+        DOM.btnLoop.addEventListener('click', () => {
+            padsData[currentEditPadId].loop = !padsData[currentEditPadId].loop;
+            // Also reset active visual state if we toggle loop off while playing
+            if (!padsData[currentEditPadId].loop && padIsPlaying[currentEditPadId]) {
+                stopPad(currentEditPadId);
+                padIsPlaying[currentEditPadId] = false;
+                DOM.padGrid.children[currentEditPadId].classList.remove('active-pad');
+            }
+            updateEditUI();
+        });
+
+        DOM.btnPitchUp.addEventListener('click', () => { padsData[currentEditPadId].pitchSt = Math.min(24, padsData[currentEditPadId].pitchSt + 1); updateEditUI(); });
+        DOM.btnPitchDown.addEventListener('click', () => { padsData[currentEditPadId].pitchSt = Math.max(-24, padsData[currentEditPadId].pitchSt - 1); updateEditUI(); });
+
+        DOM.eqLow.addEventListener('input', e => { padsData[currentEditPadId].eq.low = parseFloat(e.target.value); });
+        DOM.eqMid.addEventListener('input', e => { padsData[currentEditPadId].eq.mid = parseFloat(e.target.value); });
+        DOM.eqHigh.addEventListener('input', e => { padsData[currentEditPadId].eq.high = parseFloat(e.target.value); });
+        DOM.volSlider.addEventListener('input', e => { padsData[currentEditPadId].volume = parseFloat(e.target.value); });
+
+        DOM.btnEditPlay.addEventListener('touchstart', e => { e.preventDefault(); DOM.btnEditPlay.classList.add('bg-matte-dim'); playPad(currentEditPadId); });
+        DOM.btnEditPlay.addEventListener('mousedown', e => { e.preventDefault(); DOM.btnEditPlay.classList.add('bg-matte-dim'); playPad(currentEditPadId); });
+        DOM.btnEditPlay.addEventListener('touchend', e => { e.preventDefault(); DOM.btnEditPlay.classList.remove('bg-matte-dim'); }); // stopPad 삭제
+        DOM.btnEditPlay.addEventListener('mouseup', e => { e.preventDefault(); DOM.btnEditPlay.classList.remove('bg-matte-dim'); }); // stopPad 삭제
+
+        let activeHandle = null;
+        function updateTrimHandlesUI() {
+            const pData = padsData[currentEditPadId];
+            DOM.trimStartHandle.style.left = `${pData.trimStart * 100}%`;
+            DOM.trimEndHandle.style.right = `${(1 - pData.trimEnd) * 100}%`;
+        }
+
+        function handleTrimDrag(e) {
+            if (!activeHandle) return;
+            const rect = DOM.canvas.parentElement.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let ratio = (clientX - rect.left) / rect.width;
+            ratio = Math.max(0, Math.min(1, ratio));
+
+            const pData = padsData[currentEditPadId];
+            if (activeHandle === 'start') pData.trimStart = Math.min(ratio, pData.trimEnd - 0.01);
+            else pData.trimEnd = Math.max(ratio, pData.trimStart + 0.01);
+            
+            updateTrimHandlesUI();
+            drawWaveform(pData.buffer, pData.trimStart, pData.trimEnd);
+        }
+
+        ['mousedown', 'touchstart'].forEach(evt => {
+            DOM.trimStartHandle.addEventListener(evt, (e) => { e.preventDefault(); activeHandle = 'start'; });
+            DOM.trimEndHandle.addEventListener(evt, (e) => { e.preventDefault(); activeHandle = 'end'; });
+        });
+        ['mousemove', 'touchmove'].forEach(evt => window.addEventListener(evt, handleTrimDrag));
+        ['mouseup', 'touchend'].forEach(evt => window.addEventListener(evt, () => { activeHandle = null; }));
+
+        DOM.btnImport.addEventListener('click', () => DOM.fileImport.click());
+        DOM.fileImport.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            initAudio();
+            const arrayBuffer = await file.arrayBuffer();
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            padsData[currentEditPadId].originalBuffer = audioBuffer;
+            padsData[currentEditPadId].buffer = audioBuffer;
+            padsData[currentEditPadId].reverse = false;
+            padsData[currentEditPadId].trimStart = 0;
+            padsData[currentEditPadId].trimEnd = 1;
+            updateEditUI();
+            drawWaveform(audioBuffer);
+        });
+
+        let micRecorder = null;
+        let micChunks = [];
+        DOM.btnMicRec.addEventListener('mousedown', startMicRecord);
+        DOM.btnMicRec.addEventListener('touchstart', (e) => { e.preventDefault(); startMicRecord(); });
+        window.addEventListener('mouseup', stopMicRecord);
+        window.addEventListener('touchend', stopMicRecord);
+
+        async function startMicRecord() {
+            if (micRecorder && micRecorder.state === 'recording') return;
+            initAudio();
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                micRecorder = new MediaRecorder(stream);
+                micChunks = [];
+                micRecorder.ondataavailable = e => micChunks.push(e.data);
+                micRecorder.onstop = async () => {
+                    const blob = new Blob(micChunks, { 'type' : 'audio/webm; codecs=opus' });
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                    padsData[currentEditPadId].originalBuffer = audioBuffer;
+                    padsData[currentEditPadId].buffer = audioBuffer;
+                    padsData[currentEditPadId].reverse = false;
+                    padsData[currentEditPadId].trimStart = 0;
+                    padsData[currentEditPadId].trimEnd = 1;
+                    updateEditUI();
+                    drawWaveform(audioBuffer);
+                    stream.getTracks().forEach(t => t.stop());
+                };
+                micRecorder.start();
+                DOM.btnMicRec.classList.add('recording');
+            } catch (err) {
+                console.error('Mic access denied:', err);
+            }
+        }
+
+        function stopMicRecord() {
+            if (micRecorder && micRecorder.state === 'recording') {
+                micRecorder.stop();
+                DOM.btnMicRec.classList.remove('recording');
+            }
+        }
+
+        function playMetronomeTick() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.value = 1000;
+            osc.connect(gain); gain.connect(masterGain);
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        DOM.btnMetronome.addEventListener('click', () => {
+            isMetronomeOn = !isMetronomeOn;
+            DOM.btnMetronome.classList.toggle('text-neon-orange', isMetronomeOn);
+            if (isMetronomeOn) {
+                initAudio();
+                const bpm = parseInt(DOM.bpmInput.value) || 120;
+                metronomeInterval = setInterval(playMetronomeTick, (60 / bpm) * 1000);
+                playMetronomeTick();
+            } else {
+                clearInterval(metronomeInterval);
+            }
+        });
+
+        DOM.bpmInput.addEventListener('change', () => {
+            if(isMetronomeOn) {
+                clearInterval(metronomeInterval);
+                const bpm = parseInt(DOM.bpmInput.value) || 120;
+                metronomeInterval = setInterval(playMetronomeTick, (60 / bpm) * 1000);
+            }
+        });
+
+        DOM.btnRecPerf.addEventListener('click', () => {
+            if (!isRecordingPerf) {
+                initAudio();
+                recordedChunks = [];
+                const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+                mediaRecorder = new MediaRecorder(destNode.stream, { mimeType });
+                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                mediaRecorder.onstop = () => {
+                    performanceBlob = new Blob(recordedChunks, { type: mimeType });
+                    if(performanceAudioUrl) URL.revokeObjectURL(performanceAudioUrl);
+                    performanceAudioUrl = URL.createObjectURL(performanceBlob);
+                    performanceAudio = new Audio(performanceAudioUrl);
+                    DOM.btnExport.classList.remove('opacity-50', 'pointer-events-none');
+                };
+                mediaRecorder.start();
+                isRecordingPerf = true;
+                DOM.btnRecPerf.classList.add('bg-red-500', 'text-white');
+                DOM.btnRecPerf.classList.remove('text-neon-orange');
+            } else {
+                mediaRecorder.stop();
+                isRecordingPerf = false;
+                DOM.btnRecPerf.classList.remove('bg-red-500', 'text-white');
+                DOM.btnRecPerf.classList.add('text-neon-orange');
+            }
+        });
+
+        DOM.btnPlayPerf.addEventListener('click', () => {
+            if(performanceAudio) {
+                if(performanceAudio.paused) {
+                    performanceAudio.play();
+                    DOM.btnPlayPerf.classList.add('bg-neon-green', 'text-matte-bg');
+                    DOM.btnPlayPerf.classList.remove('text-neon-green');
+                    performanceAudio.onended = () => {
+                        DOM.btnPlayPerf.classList.remove('bg-neon-green', 'text-matte-bg');
+                        DOM.btnPlayPerf.classList.add('text-neon-green');
+                    };
+                } else {
+                    performanceAudio.pause();
+                    performanceAudio.currentTime = 0;
+                    DOM.btnPlayPerf.classList.remove('bg-neon-green', 'text-matte-bg');
+                    DOM.btnPlayPerf.classList.add('text-neon-green');
+                }
+            }
+        });
+
+        DOM.btnExport.addEventListener('click', () => {
+            if(performanceAudioUrl) {
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = performanceAudioUrl;
+                a.download = 'swiftsketch_beat.webm';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => document.body.removeChild(a), 100);
+            }
+        });
+
+        createPadElements();
+        document.body.addEventListener('touchstart', initAudio, { once: true });
+        document.body.addEventListener('mousedown', initAudio, { once: true });
+
+    </script>
+</body>
+</html>
