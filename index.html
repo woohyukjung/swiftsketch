@@ -229,17 +229,22 @@
         </div>
 
         <!-- Bottom Section: 2 Rows x 4 Cols Grid -->
-        <div id="bottom-controls" class="w-full grid grid-cols-4 grid-rows-2 gap-2 min-h-[80px]" style="height: 15%;">
-            <!-- Top Row -->
-            <button id="btn-edit-mode" class="col-span-2 row-span-1 bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">EDIT</button>
-            <button id="btn-rec-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
-            <button id="btn-play-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-green text-2xl flex items-center justify-center active:bg-neon-green active:text-matte-bg transition-colors">▶</button>
-            
-            <!-- Bottom Row -->
-            <div id="logo-text" class="col-span-3 row-span-1 flex items-end justify-start pl-1 pb-0.5 text-matte-text font-bold tracking-tighter lowercase leading-none select-none" style="font-size: 1.85rem;">
-                swiftsketch
+        <!-- BPM 버튼 1개의 비율(aspect-[8/1])에 맞춰 각 행의 높이를 통일 -->
+        <div id="bottom-controls" class="w-full flex flex-col gap-2">
+            <!-- Row 1: EDIT / REC / PLAY -->
+            <div class="grid grid-cols-4 w-full aspect-[8/1] gap-2">
+                <button id="btn-edit-mode" class="col-span-2 h-full bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">EDIT</button>
+                <button id="btn-rec-perf" class="col-span-1 h-full bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
+                <button id="btn-play-perf" class="col-span-1 h-full bg-matte-pad sq-element text-neon-green text-2xl flex items-center justify-center active:bg-neon-green active:text-matte-bg transition-colors">▶</button>
             </div>
-            <button id="btn-export" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-dim text-xs font-bold uppercase opacity-50 pointer-events-none transition-opacity flex items-center justify-center">EXP</button>
+            
+            <!-- Row 2: Logo / Export -->
+            <div class="grid grid-cols-4 w-full aspect-[8/1] gap-2">
+                <div id="logo-text" class="col-span-3 h-full flex items-end justify-start pl-1 pb-0.5 text-matte-text font-bold tracking-tighter lowercase leading-none select-none" style="font-size: 1.85rem;">
+                    swiftsketch
+                </div>
+                <button id="btn-export" class="col-span-1 h-full bg-matte-pad sq-element text-matte-dim text-xs font-bold uppercase opacity-50 pointer-events-none transition-opacity flex items-center justify-center">EXP</button>
+            </div>
         </div>
 
     </div>
