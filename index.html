@@ -64,10 +64,12 @@
         }
 
         /* Pad Highlights */
-        .active-pad { background-color: #FF5500 !important; color: #1a1a1a !important; }
+        /* 수정: 서서히 꺼지도록 transition 추가 */
+        .bg-matte-pad { transition: background-color 0.3s ease-out, color 0.3s ease-out; }
+        .active-pad { background-color: #FF5500 !important; color: #1a1a1a !important; transition: none !important; }
         .active-btn { background-color: #FF5500 !important; color: #1a1a1a !important; }
         .recording { background-color: #ff3333 !important; color: white !important; }
-        .edit-select-mode { opacity: 0.5; border: 2px solid #FF5500 !important; } /* Only exception for border is selection highlight */
+        .edit-select-mode { border: none !important; background-color: rgba(255, 85, 0, 0.35) !important; }
 
         /* Vertical Range Slider Styling */
         input[type=range].v-slider {
@@ -113,9 +115,8 @@
     <!-- Main Fixed Width Container -->
     <div id="app-container">
 
-        <!-- Top Section: Waveform & Global Settings -->
-        <!-- 기존 flex 대신 grid grid-cols-4 사용 -->
-        <div class="grid grid-cols-4 w-full h-[15%] min-h-[80px] gap-2">
+            <!-- Top Section: Waveform & Global Settings -->
+            <div class="grid grid-cols-4 w-full aspect-[4/1] gap-2">
             
             <!-- Left: Waveform (3컬럼 차지 = 3/4) -->
             <div class="col-span-3 h-full bg-matte-pad sq-element relative">
@@ -463,13 +464,13 @@
 
         function handlePadUp(id, el) {
             if (isEditSelectionMode) return;
-            const pData = padsData[id];
-            
-            // 루프 모드가 아닐 때: 손을 떼면 불빛만 끄고 오디오는 끝까지 재생되게 함
+                const pData = padsData[id];
+                    
             if (!pData.loop) {
-                // stopPad(id);  <-- 지우거나 주석 처리!
-                el.classList.remove('active-pad');
-                padIsPlaying[id] = false;
+                setTimeout(() => {
+                    el.classList.remove('active-pad');
+                    padIsPlaying[id] = false;
+                }, 100);
             }
         }
 
@@ -477,8 +478,9 @@
         function drawWaveform(buffer, trimStart = 0, trimEnd = 1) {
             if (!isResizing) resizeCanvasInternal();
             
-            const width = DOM.canvas.width;
-            const height = DOM.canvas.height;
+            const dpr = window.devicePixelRatio || 1;
+            const width = DOM.canvas.width / dpr;
+            const height = DOM.canvas.height / dpr;
             
             canvasCtx.fillStyle = '#242424'; // pad color
             canvasCtx.fillRect(0, 0, width, height);
@@ -527,9 +529,13 @@
 
         function resizeCanvasInternal() {
             const parent = DOM.canvas.parentElement;
-            if (DOM.canvas.width !== parent.clientWidth || DOM.canvas.height !== parent.clientHeight) {
-                DOM.canvas.width = parent.clientWidth;
-                DOM.canvas.height = parent.clientHeight;
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = parent.clientWidth;
+            const displayHeight = parent.clientHeight;
+            if (DOM.canvas.width !== displayWidth * dpr || DOM.canvas.height !== displayHeight * dpr) {
+                DOM.canvas.width = displayWidth * dpr;
+                DOM.canvas.height = displayHeight * dpr;
+                canvasCtx.scale(dpr, dpr);
             }
         }
 
