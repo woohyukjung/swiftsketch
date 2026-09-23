@@ -55,21 +55,38 @@
         /* Main Container Constraints */
         #app-container {
             width: 95vw;
-            max-width: 500px; /* Limit width on tablet/desktop */
+            max-width: 500px;
             height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding: 12px 0;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        #main-stage {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+        }
+
+        #bottom-controls {
+            position: absolute;
+            left: 50%;
+            bottom: env(safe-area-inset-bottom, 0px);
+            transform: translateX(-50%);
+            width: 100%;
         }
 
         /* Pad Highlights */
         /* 수정: 서서히 꺼지도록 transition 추가 */
-        .bg-matte-pad { transition: background-color 0.3s ease-out, color 0.3s ease-out; }
+        /* transition 속성을 !important로 지정하여 클래스가 떨어질 때 0.35초 동안 서서히 꺼지게 처리 */
+        .bg-matte-pad { transition: background-color 0.35s ease-out !important, color 0.35s ease-out !important; }
         .active-pad { background-color: #FF5500 !important; color: #1a1a1a !important; transition: none !important; }
         .active-btn { background-color: #FF5500 !important; color: #1a1a1a !important; }
         .recording { background-color: #ff3333 !important; color: white !important; }
         .edit-select-mode { border: none !important; background-color: rgba(255, 85, 0, 0.35) !important; }
+        /* 샘플(buffer)이 없는 빈 패드를 위한 어두운 스타일 */
+        .edit-select-dim { border: none !important; background-color: rgba(255, 85, 0, 0.1) !important; opacity: 0.4; }
 
         /* Vertical Range Slider Styling */
         input[type=range].v-slider {
@@ -105,8 +122,11 @@
 
         /* Input 내부 텍스트 수직 중앙 정렬 강제 */
         #bpm-input {
-            height: 1.2em;
-            line-height: 1.2em;
+            height: 1em;
+            line-height: 1;
+            padding: 0;
+            margin: 0;
+            vertical-align: baseline;
         }
     </style>
 </head>
@@ -115,81 +135,86 @@
     <!-- Main Fixed Width Container -->
     <div id="app-container">
 
+        <div id="main-stage">
+  
             <!-- Top Section: Waveform & Global Settings -->
-            <div class="grid grid-cols-4 w-full aspect-[4/1] gap-2">
-            
-            <!-- Left: Waveform (3컬럼 차지 = 3/4) -->
-            <div class="col-span-3 h-full bg-matte-pad sq-element relative">
-                <canvas id="waveform-canvas" class="w-full h-full absolute inset-0"></canvas>
-                <div id="trim-controls" class="absolute inset-0 hidden-view pointer-events-none">
-                    <div id="trim-start-handle" class="absolute left-0 top-0 bottom-0 w-4 bg-[rgba(255,85,0,0.3)] pointer-events-auto cursor-ew-resize"></div>
-                    <div id="trim-end-handle" class="absolute right-0 top-0 bottom-0 w-4 bg-[rgba(255,85,0,0.3)] pointer-events-auto cursor-ew-resize"></div>
-                </div>
-            </div>
-            
-            <!-- Right: Buttons (1컬럼 차지 = 1/4) -->
-            <div class="col-span-1 h-full relative">
-                <!-- Main View Buttons -->
-                <div id="top-right-main" class="absolute inset-0 flex flex-col gap-2">
-                    <div class="flex-1 bg-matte-pad sq-element flex flex-col items-center justify-center p-0 m-0">
-                        <span class="text-xxs text-matte-dim font-bold uppercase leading-none block mb-1">BPM</span>
-                        <input type="number" id="bpm-input" value="120" class="w-full bg-transparent text-center text-neon-orange font-bold outline-none text-lg p-0 m-0 leading-none block" />
-                    </div>
-                    <button id="btn-metronome" class="flex-1 bg-matte-pad sq-element text-xxs font-bold uppercase text-matte-dim active:bg-matte-dim transition-colors">
-                        Metro
-                    </button>
-                </div>
-                <!-- Edit View Buttons -->
-                <div id="top-right-edit" class="absolute inset-0 flex flex-col gap-2 hidden-view">
-                    <button id="btn-mic-rec" class="flex-1 bg-matte-pad sq-element text-xs font-bold text-red-500 active:bg-red-500 active:text-white transition-colors">● Mic</button>
-                    <button id="btn-import" class="flex-1 bg-matte-pad sq-element text-xs font-bold text-neon-orange active:bg-neon-orange active:text-matte-bg transition-colors">Import</button>
-                    <input type="file" id="file-import" accept="audio/*" class="hidden" />
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Middle Section: Square Grid Container -->
-        <div class="w-full flex items-center justify-center">
-            <!-- perfectly square aspect ratio container -->
-            <div class="relative w-full aspect-square">
+            <div class="grid grid-cols-4 w-full aspect-[4/1] gap-2 mb-2">
                 
-                <!-- Main Pads Grid -->
-                <div id="pad-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full">
-                    <!-- Pads generated by JS -->
+                <!-- Left: Waveform (3컬럼 차지 = 3/4) -->
+                <div class="col-span-3 h-full bg-matte-pad sq-element relative">
+                    <canvas id="waveform-canvas" class="w-full h-full absolute inset-0"></canvas>
+                    <div id="trim-controls" class="absolute inset-0 hidden-view pointer-events-none">
+                        <div id="trim-start-handle" class="absolute left-0 top-0 bottom-0 w-4 bg-[rgba(255,85,0,0.3)] pointer-events-auto cursor-ew-resize"></div>
+                        <div id="trim-end-handle" class="absolute right-0 top-0 bottom-0 w-4 bg-[rgba(255,85,0,0.3)] pointer-events-auto cursor-ew-resize"></div>
+                    </div>
+                </div>
+                
+                <!-- Right: Buttons (1컬럼 차지 = 1/4) -->
+                <div class="col-span-1 h-full relative">
+                    <!-- Main View Buttons -->
+                    <div id="top-right-main" class="absolute inset-0 flex flex-col gap-2">
+                        <div class="flex-1 bg-matte-pad sq-element flex items-center justify-center px-1 p-0 m-0">
+                            <div class="flex items-baseline">
+                                <input type="number" id="bpm-input" value="120" class="w-10 bg-transparent text-right text-neon-orange font-bold outline-none text-lg p-0 m-0 leading-none block" />
+                                <span class="text-xxs text-matte-dim font-bold uppercase leading-none block">BPM</span>
+                            </div>
+                        </div>
+                        <button id="btn-metronome" class="flex-1 bg-matte-pad sq-element text-xxs font-bold uppercase text-matte-dim active:bg-matte-dim transition-colors">
+                            Metro
+                        </button>
+                    </div>
+                    <!-- Edit View Buttons -->
+                    <div id="top-right-edit" class="absolute inset-0 flex flex-col gap-2 hidden-view">
+                        <button id="btn-mic-rec" class="flex-1 bg-matte-pad sq-element text-xs font-bold text-red-500 active:bg-red-500 active:text-white transition-colors">● Mic</button>
+                        <button id="btn-import" class="flex-1 bg-matte-pad sq-element text-xs font-bold text-neon-orange active:bg-neon-orange active:text-matte-bg transition-colors">Import</button>
+                        <input type="file" id="file-import" accept="audio/*" class="hidden" />
+                    </div>
                 </div>
 
-                <!-- Edit View Grid -->
-                <div id="edit-view-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full hidden-view">
-                    <!-- Row 1 -->
-                    <button id="btn-reverse" class="col-span-1 row-span-1 bg-matte-pad sq-element text-xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">◀</button>
-                    <button id="btn-loop" class="col-span-1 row-span-1 bg-matte-pad sq-element text-2xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">↺</button>
-                    <div id="pitch-display" class="col-span-2 row-span-1 bg-matte-pad sq-element flex items-center justify-center text-neon-orange text-xl font-bold">0 st</div>
+            </div>
+
+            <!-- Middle Section: Square Grid Container -->
+            <div class="w-full flex items-center justify-center">
+                <!-- perfectly square aspect ratio container -->
+                <div class="relative w-full aspect-square">
                     
-                    <!-- Row 2 -->
-                    <button id="btn-edit-play" class="col-span-2 row-span-1 bg-matte-pad sq-element flex items-center justify-center active:bg-matte-dim transition-colors">
-                        <span class="text-4xl text-neon-green">▶</span>
-                    </button>
-                    <button id="btn-pitch-down" class="col-span-1 row-span-1 bg-matte-pad sq-element text-3xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">-</button>
-                    <button id="btn-pitch-up" class="col-span-1 row-span-1 bg-matte-pad sq-element text-3xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">+</button>
-                    
-                    <!-- Rows 3 & 4 (EQ & Vol) -->
-                    <div class="col-span-4 row-span-2 grid grid-cols-4 gap-2 h-full">
-                        <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
-                            <span class="text-xxs text-matte-dim font-bold mb-1">LOW</span>
-                            <input type="range" id="eq-low" class="v-slider flex-1" min="-12" max="12" value="0">
-                        </div>
-                        <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
-                            <span class="text-xxs text-matte-dim font-bold mb-1">MID</span>
-                            <input type="range" id="eq-mid" class="v-slider flex-1" min="-12" max="12" value="0">
-                        </div>
-                        <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
-                            <span class="text-xxs text-matte-dim font-bold mb-1">HIGH</span>
-                            <input type="range" id="eq-high" class="v-slider flex-1" min="-12" max="12" value="0">
-                        </div>
-                        <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
-                            <span class="text-xxs text-neon-orange font-bold mb-1">VOL</span>
-                            <input type="range" id="vol-slider" class="v-slider flex-1" min="0" max="2" step="0.05" value="1">
+                    <!-- Main Pads Grid -->
+                    <div id="pad-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full">
+                        <!-- Pads generated by JS -->
+                    </div>
+
+                    <!-- Edit View Grid -->
+                    <div id="edit-view-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full hidden-view">
+                        <!-- Row 1 -->
+                        <button id="btn-reverse" class="col-span-1 row-span-1 bg-matte-pad sq-element text-xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">◀</button>
+                        <button id="btn-loop" class="col-span-1 row-span-1 bg-matte-pad sq-element text-2xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">↺</button>
+                        <div id="pitch-display" class="col-span-2 row-span-1 bg-matte-pad sq-element flex items-center justify-center text-neon-orange text-xl font-bold">0 st</div>
+                        
+                        <!-- Row 2 -->
+                        <button id="btn-edit-play" class="col-span-2 row-span-1 bg-matte-pad sq-element flex items-center justify-center active:bg-matte-dim transition-colors">
+                            <span class="text-4xl text-neon-green">▶</span>
+                        </button>
+                        <button id="btn-pitch-down" class="col-span-1 row-span-1 bg-matte-pad sq-element text-3xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">-</button>
+                        <button id="btn-pitch-up" class="col-span-1 row-span-1 bg-matte-pad sq-element text-3xl font-bold text-matte-text flex items-center justify-center active:bg-matte-dim">+</button>
+                        
+                        <!-- Rows 3 & 4 (EQ & Vol) -->
+                        <div class="col-span-4 row-span-2 grid grid-cols-4 gap-2 h-full">
+                            <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
+                                <span class="text-xxs text-matte-dim font-bold mb-1">LOW</span>
+                                <input type="range" id="eq-low" class="v-slider flex-1" min="-12" max="12" value="0">
+                            </div>
+                            <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
+                                <span class="text-xxs text-matte-dim font-bold mb-1">MID</span>
+                                <input type="range" id="eq-mid" class="v-slider flex-1" min="-12" max="12" value="0">
+                            </div>
+                            <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
+                                <span class="text-xxs text-matte-dim font-bold mb-1">HIGH</span>
+                                <input type="range" id="eq-high" class="v-slider flex-1" min="-12" max="12" value="0">
+                            </div>
+                            <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
+                                <span class="text-xxs text-neon-orange font-bold mb-1">VOL</span>
+                                <input type="range" id="vol-slider" class="v-slider flex-1" min="0" max="2" step="0.05" value="1">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -197,7 +222,7 @@
         </div>
 
         <!-- Bottom Section: 2 Rows x 4 Cols Grid -->
-        <div class="w-full grid grid-cols-4 grid-rows-2 gap-2 mt-auto min-h-[80px]" style="height: 15%;">
+        <div id="bottom-controls" class="w-full grid grid-cols-4 grid-rows-2 gap-2 min-h-[80px]" style="height: 15%;">
             <!-- Top Row -->
             <button id="btn-edit-mode" class="col-span-2 row-span-1 bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">EDIT</button>
             <button id="btn-rec-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
@@ -285,7 +310,15 @@
             masterGain.connect(audioCtx.destination);
             destNode = audioCtx.createMediaStreamDestination();
             masterGain.connect(destNode);
-            generateDefaultSounds();
+            generateDefaultSounds().then(() => {
+                if (isEditSelectionMode) {
+                    Array.from(DOM.padGrid.children).forEach((pad, idx) => {
+                        const hasSample = !!padsData[idx].buffer;
+                        pad.classList.toggle('edit-select-mode', hasSample);
+                        pad.classList.toggle('edit-select-dim', !hasSample);
+                    });
+                }
+            });
             drawWaveform(null);
         }
 
@@ -350,7 +383,8 @@
 
             // Simple Synths for other pads
             const freqs = [130.81, 155.56, 174.61, 196.00, 233.08, 261.63, 311.13, 349.23, 392.00, 466.16, 523.25, 622.25];
-            for(let i=0; i<12; i++) {
+            for(let i=0; i<8; i++) { // 현재는 1~2행 샘플만 생성
+            // for(let i=0; i<12; i++) { // 기존 코드: 3행까지 생성
                 padsData[i].buffer = padsData[i].originalBuffer = await makeBuffer(ctx => {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
@@ -414,8 +448,17 @@
             if (pData.loop) {
                 source.loopStart = startOffset;
                 source.loopEnd = startOffset + playDuration;
+                gainNode.gain.setValueAtTime(pData.volume, audioCtx.currentTime);
                 source.start(0, startOffset);
             } else {
+                const now = audioCtx.currentTime;
+                const fadeTime = Math.min(0.002, playDuration / 2);
+
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(pData.volume, now + fadeTime);
+                gainNode.gain.setValueAtTime(pData.volume, now + playDuration - fadeTime);
+                gainNode.gain.linearRampToValueAtTime(0, now + playDuration);
+
                 source.start(0, startOffset, playDuration);
             }
             activeSources[id] = source;
@@ -464,13 +507,12 @@
 
         function handlePadUp(id, el) {
             if (isEditSelectionMode) return;
-                const pData = padsData[id];
+            const pData = padsData[id];
                     
             if (!pData.loop) {
-                setTimeout(() => {
-                    el.classList.remove('active-pad');
-                    padIsPlaying[id] = false;
-                }, 100);
+                // 즉시 클래스를 제거하되 CSS transition에 의해 서서히 불빛이 꺼짐
+                el.classList.remove('active-pad');
+                padIsPlaying[id] = false;
             }
         }
 
@@ -492,8 +534,10 @@
             const step = Math.ceil(data.length / width);
             const amp = height / 2;
 
-            canvasCtx.fillStyle = '#333333'; // slight highlight for trim area
-            canvasCtx.fillRect(trimStart*width, 0, (trimEnd-trimStart)*width, height);
+            if (trimStart > 0 || trimEnd < 1) {
+                canvasCtx.fillStyle = '#333333'; // trim area highlight
+                canvasCtx.fillRect(trimStart * width, 0, (trimEnd - trimStart) * width, height);
+            }
 
             canvasCtx.beginPath();
             canvasCtx.strokeStyle = '#FF5500';
@@ -558,9 +602,20 @@
                 DOM.btnEditMode.classList.toggle('active-btn', isEditSelectionMode);
                 DOM.btnEditMode.innerText = isEditSelectionMode ? 'TAP PAD' : 'EDIT';
                 
-                Array.from(DOM.padGrid.children).forEach(pad => {
-                    if(isEditSelectionMode) pad.classList.add('edit-select-mode');
-                    else pad.classList.remove('edit-select-mode');
+                Array.from(DOM.padGrid.children).forEach((pad, idx) => {
+                    if(isEditSelectionMode) {
+                        // buffer 또는 originalBuffer가 존재하는지 확인하여 하이라이트 톤 구분
+                        const hasSample = padsData[idx].buffer || padsData[idx].originalBuffer;
+                        if (hasSample) {
+                            pad.classList.add('edit-select-mode');
+                            pad.classList.remove('edit-select-dim');
+                        } else {
+                            pad.classList.add('edit-select-dim');
+                            pad.classList.remove('edit-select-mode');
+                        }
+                    } else {
+                        pad.classList.remove('edit-select-mode', 'edit-select-dim');
+                    }
                 });
             }
         });
@@ -570,7 +625,7 @@
             isEditMode = true;
             currentEditPadId = id;
             
-            Array.from(DOM.padGrid.children).forEach(pad => pad.classList.remove('edit-select-mode'));
+            Array.from(DOM.padGrid.children).forEach(pad => pad.classList.remove('edit-select-mode', 'edit-select-dim'));
             DOM.padGrid.classList.add('hidden-view');
             DOM.editViewGrid.classList.remove('hidden-view');
             DOM.topRightMain.classList.add('hidden-view');
