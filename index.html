@@ -129,6 +129,7 @@
             vertical-align: baseline;
         }
     </style>
+
 </head>
 <body>
 
@@ -271,10 +272,12 @@
         const NUM_PADS = 16;
         let audioCtx;
         let masterGain;
+        let recordGain;
         let destNode;
         let mediaRecorder;
         let recordedChunks = [];
         let performanceBlob = null;
+        let performanceWavBlob = null;
         let performanceAudioUrl = null;
         let performanceAudio = null;
 
@@ -308,8 +311,12 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             masterGain = audioCtx.createGain();
             masterGain.connect(audioCtx.destination);
+
+            recordGain = audioCtx.createGain();
+            recordGain.gain.value = 1.0;
+
             destNode = audioCtx.createMediaStreamDestination();
-            masterGain.connect(destNode);
+            recordGain.connect(destNode);
             generateDefaultSounds().then(() => {
                 if (isEditSelectionMode) {
                     Array.from(DOM.padGrid.children).forEach((pad, idx) => {
@@ -439,6 +446,7 @@
 
             source.connect(lowEQ); lowEQ.connect(midEQ); midEQ.connect(highEQ); highEQ.connect(gainNode);
             gainNode.connect(masterGain);
+            gainNode.connect(recordGain);
 
             const dur = pData.buffer.duration;
             const startOffset = pData.trimStart * dur;
@@ -827,15 +835,25 @@
             if (!isRecordingPerf) {
                 initAudio();
                 recordedChunks = [];
+                performanceWavBlob = null;
                 const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
                 mediaRecorder = new MediaRecorder(destNode.stream, { mimeType });
                 mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
-                mediaRecorder.onstop = () => {
+                mediaRecorder.onstop = async () => {
                     performanceBlob = new Blob(recordedChunks, { type: mimeType });
-                    if(performanceAudioUrl) URL.revokeObjectURL(performanceAudioUrl);
+
+                    if (performanceAudioUrl) URL.revokeObjectURL(performanceAudioUrl);
                     performanceAudioUrl = URL.createObjectURL(performanceBlob);
                     performanceAudio = new Audio(performanceAudioUrl);
-                    DOM.btnExport.classList.remove('opacity-50', 'pointer-events-none');
+
+                    try {
+                        performanceWavBlob = await encodeWav(performanceBlob);
+                        DOM.btnExport.classList.remove('opacity-50', 'pointer-events-none');
+                    } catch (err) {
+                        console.error('WAV conversion failed:', err);
+                        performanceWavBlob = null;
+                        alert('WAV 변환에 실패했습니다.');
+                    }
                 };
                 mediaRecorder.start();
                 isRecordingPerf = true;
@@ -868,16 +886,110 @@
             }
         });
 
-        DOM.btnExport.addEventListener('click', () => {
-            if(performanceAudioUrl) {
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = performanceAudioUrl;
-                a.download = 'swiftsketch_beat.webm';
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => document.body.removeChild(a), 100);
+        async function encodeWav(blob) {
+            const arrayBuffer = await blob.arrayBuffer();
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+            const numChannels = Math.min(audioBuffer.numberOfChannels, 2);
+            const sampleRate = audioBuffer.sampleRate;
+            const numSamples = audioBuffer.length;
+
+            const bytesPerSample = 2; // 16-bit PCM
+            const blockAlign = numChannels * bytesPerSample;
+            const dataSize = numSamples * blockAlign;
+
+            const wavBuffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(wavBuffer);
+
+            function writeString(offset, str) {
+                for (let i = 0; i < str.length; i++) {
+                    view.setUint8(offset + i, str.charCodeAt(i));
+                }
             }
+
+            // RIFF header
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeString(8, 'WAVE');
+
+            // fmt chunk
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true); // PCM chunk size
+            view.setUint16(20, 1, true);  // PCM format
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, 16, true); // 16-bit
+
+            // data chunk
+            writeString(36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            const channels = [];
+
+            for (let channel = 0; channel < numChannels; channel++) {
+                channels.push(audioBuffer.getChannelData(channel));
+            }
+
+            let offset = 44;
+
+            for (let i = 0; i < numSamples; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(
+                        -1,
+                        Math.min(1, channels[channel][i])
+                    );
+
+                    const intSample = sample < 0
+                        ? sample * 0x8000
+                        : sample * 0x7FFF;
+
+                    view.setInt16(offset, intSample, true);
+                    offset += 2;
+                }
+            }
+
+            return new Blob([wavBuffer], {
+                type: 'audio/wav'
+            });
+        }
+
+        DOM.btnExport.addEventListener('click', () => {
+            if (!performanceWavBlob) return;
+
+            let fileName = prompt(
+                'Save as...',
+                'swiftsketch_beat'
+            );
+
+            if (!fileName) return;
+
+            fileName = fileName
+                .replace(/[\\/:*?"<>|]/g, '')
+                .trim();
+
+            if (!fileName) {
+                fileName = 'swiftsketch_beat';
+            }
+
+            if (!fileName.toLowerCase().endsWith('.wav')) {
+                fileName += '.wav';
+            }
+
+            const wavUrl = URL.createObjectURL(performanceWavBlob);
+
+            const a = document.createElement('a');
+            a.href = wavUrl;
+            a.download = fileName;
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            setTimeout(() => {
+                URL.revokeObjectURL(wavUrl);
+            }, 1000);
         });
 
         createPadElements();
