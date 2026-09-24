@@ -53,9 +53,10 @@
         }
 
         /* Main Container Constraints */
+        /* Main Container Constraints */
         #app-container {
-            /* 핵심: 세로 높이가 짧아지면(데스크톱 가로창 등) 가로 폭도 화면 높이에 맞춰 동적으로 축소됨 */
-            width: min(95vw, 500px, calc((100dvh - 120px) / 1.5));
+            /* 세로가 길어진 레이아웃을 모두 담을 수 있도록 1.65로 비율 조정 */
+            width: min(95vw, 500px, calc((100dvh - 40px) / 1.65));
             height: 100dvh;
             position: relative;
             box-sizing: border-box;
@@ -74,7 +75,7 @@
         #bottom-controls {
             position: relative;
             width: 100%;
-            margin-top: 60px;
+            /* margin-top: 60px; 삭제 */
             flex: 0 0 auto;
         }
 
@@ -180,8 +181,8 @@
 
             </div>
 
-            <!-- Middle Section: Square Grid Container -->
-            <div class="w-full flex items-center justify-center">
+            <!-- Middle Section: Square Grid Container + Edit & Nav Row -->
+            <div class="w-full flex flex-col gap-2 mb-2">
                 <!-- perfectly square aspect ratio container -->
                 <div class="relative w-full aspect-square">
                     
@@ -227,15 +228,21 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- [NEW] 패드 바로 하단 3개 버튼 (EDIT, <, >) -->
+                <div class="grid grid-cols-4 w-full aspect-[8/1] gap-2">
+                    <button id="btn-edit-mode" class="col-span-2 h-full bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">EDIT</button>
+                    <button id="btn-page-prev" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&lt;</button>
+                    <button id="btn-page-next" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&gt;</button>
+                </div>
             </div>
         </div>
 
         <!-- Bottom Section: 2 Rows x 4 Cols Grid -->
-        <!-- BPM 버튼 1개의 비율(aspect-[8/1])에 맞춰 각 행의 높이를 통일 -->
-        <div id="bottom-controls" class="w-full flex flex-col gap-2">
-            <!-- Row 1: EDIT / REC / PLAY -->
+        <div id="bottom-controls" class="w-full flex flex-col gap-2 mt-auto">
+            <!-- Row 1: 빈 공간(EDIT 자리) + REC / PLAY -->
             <div class="grid grid-cols-4 w-full aspect-[8/1] gap-2">
-                <button id="btn-edit-mode" class="col-span-2 h-full bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">EDIT</button>
+                <div class="col-span-2 h-full"></div>
                 <button id="btn-rec-perf" class="col-span-1 h-full bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
                 <button id="btn-play-perf" class="col-span-1 h-full bg-matte-pad sq-element text-neon-green flex items-center justify-center active:bg-neon-green active:text-matte-bg transition-colors">
                     <svg class="w-9 h-9 fill-current" viewBox="0 0 24 24">
@@ -283,7 +290,9 @@
             btnMetronome: document.getElementById('btn-metronome'),
             btnRecPerf: document.getElementById('btn-rec-perf'),
             btnPlayPerf: document.getElementById('btn-play-perf'),
-            btnExport: document.getElementById('btn-export')
+            btnExport: document.getElementById('btn-export'), // 쉼표 추가
+            btnPagePrev: document.getElementById('btn-page-prev'),
+            btnPageNext: document.getElementById('btn-page-next')
         };
 
         const NUM_PADS = 16;
