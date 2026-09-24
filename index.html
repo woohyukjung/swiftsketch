@@ -54,8 +54,8 @@
 
         /* Main Container Constraints */
         #app-container {
-            width: 95vw;
-            max-width: 500px;
+            /* 핵심: 세로 높이가 짧아지면(데스크톱 가로창 등) 가로 폭도 화면 높이에 맞춰 동적으로 축소됨 */
+            width: min(95vw, 500px, calc((100dvh - 120px) / 1.5));
             height: 100dvh;
             position: relative;
             box-sizing: border-box;
