@@ -177,6 +177,14 @@
                         <button id="btn-import" class="flex-1 bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">IMPORT</button>
                         <input type="file" id="file-import" accept=".wav,.wave,.mp3,.m4a,.ogg,.aac,.flac" class="hidden" />
                     </div>
+
+                    <!-- [추가] Synth Mode: Wave Selector 1x1 -->
+                    <div id="top-right-synth" class="absolute inset-0 hidden-view">
+                        <button id="btn-wave-select" class="w-full h-full bg-matte-pad sq-element flex flex-col items-center justify-center active:bg-matte-dim transition-colors">
+                            <svg id="wave-icon" class="w-8 h-8 stroke-neon-blue fill-none" stroke-width="2" viewBox="0 0 24 24"><path d="M2 12 Q 7 2 12 12 T 22 12"></path></svg>
+                            <span class="text-xxs text-matte-text font-bold mt-1">WAVE</span>
+                        </button>
+                    </div>
                 </div>
 
             </div>
@@ -227,13 +235,43 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- 3. Synth Chord Play Grid (패드 추가) -->
+                    <div id="chord-view-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full hidden-view">
+                        <!-- Row 1 -->
+                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="0">C</button>
+                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="7">G</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="maj">MAJ</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="min">MIN</button>
+                        <!-- Row 2 -->
+                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="2">D</button>
+                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="9">A</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dom7">DOM 7</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="min7">MIN 7</button>
+                        <!-- Row 3 -->
+                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="4">E</button>
+                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="11">B</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dim">DIM</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="aug">AUG</button>
+                        <!-- Row 4 -->
+                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="5">F</button>
+                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="12">C(+1)</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus2">SUS 2</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus4">SUS 4</button>
+                    </div>
+
+                    <!-- 4. Synth Edit Grid (빈 뼈대) -->
+                    <div id="synth-edit-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full hidden-view">
+                        <!-- 다음 단계에서 여기에 AHDSR 및 EQ 노브가 들어갑니다 -->
+                    </div>
                 </div>
 
-                <!-- [NEW] 패드 바로 하단 3개 버튼 (EDIT, <, >) -->
-                <div class="grid grid-cols-4 w-full aspect-[8/1] gap-2">
-                    <button id="btn-edit-mode" class="col-span-2 h-full bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">EDIT</button>
-                    <button id="btn-page-prev" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&lt;</button>
-                    <button id="btn-page-next" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&gt;</button>
+                <!-- Nav Row: EDIT | < | MODE LABEL | > -->
+                <div class="flex w-full aspect-[8/1] gap-2">
+                    <button id="btn-edit-mode" class="w-1/4 h-full bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-green active:text-matte-bg transition-colors">EDIT</button>
+                    <button id="btn-mode-prev" class="w-1/6 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&lt;</button>
+                    <div id="mode-display" class="flex-1 h-full bg-matte-pad sq-element flex items-center justify-center text-matte-text text-sm font-bold tracking-widest transition-colors shadow-inner">SAMPLE MODE</div>
+                    <button id="btn-mode-next" class="w-1/6 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&gt;</button>
                 </div>
             </div>
         </div>
@@ -266,10 +304,20 @@
         const DOM = {
             padGrid: document.getElementById('pad-grid'),
             editViewGrid: document.getElementById('edit-view-grid'),
+            chordViewGrid: document.getElementById('chord-view-grid'),
+            synthEditGrid: document.getElementById('synth-edit-grid'),
             canvas: document.getElementById('waveform-canvas'),
-            btnEditMode: document.getElementById('btn-edit-mode'),
+            
             topRightMain: document.getElementById('top-right-main'),
             topRightEdit: document.getElementById('top-right-edit'),
+            topRightSynth: document.getElementById('top-right-synth'),
+            
+            btnEditMode: document.getElementById('btn-edit-mode'),
+            btnModePrev: document.getElementById('btn-mode-prev'),
+            modeDisplay: document.getElementById('mode-display'),
+            btnModeNext: document.getElementById('btn-mode-next'),
+            btnWaveSelect: document.getElementById('btn-wave-select'),
+
             trimControls: document.getElementById('trim-controls'),
             trimStartHandle: document.getElementById('trim-start-handle'),
             trimEndHandle: document.getElementById('trim-end-handle'),
@@ -290,48 +338,40 @@
             btnMetronome: document.getElementById('btn-metronome'),
             btnRecPerf: document.getElementById('btn-rec-perf'),
             btnPlayPerf: document.getElementById('btn-play-perf'),
-            btnExport: document.getElementById('btn-export'), // 쉼표 추가
-            btnPagePrev: document.getElementById('btn-page-prev'),
-            btnPageNext: document.getElementById('btn-page-next')
+            btnExport: document.getElementById('btn-export')
         };
 
         const NUM_PADS = 16;
-        let audioCtx;
-        let masterGain;
-        let recordGain;
-        let destNode;
-        let mediaRecorder;
+        let audioCtx, masterGain, recordGain, destNode, mediaRecorder;
         let recordedChunks = [];
-        let performanceBlob = null;
-        let performanceWavBlob = null;
-        let performanceAudioUrl = null;
-        let performanceAudio = null;
+        let performanceBlob = null, performanceWavBlob = null, performanceAudioUrl = null, performanceAudio = null;
 
+        let currentMode = 'sample'; // 'sample' 또는 'chord'
         let isEditMode = false;
         let isEditSelectionMode = false;
         let currentEditPadId = 0;
-        let isRecordingPerf = false;
-        let isMetronomeOn = false;
-        let metronomeInterval = null;
-        let metroBeat = 0;
+        let isRecordingPerf = false, isMetronomeOn = false, metronomeInterval = null, metroBeat = 0;
         
         let canvasCtx = DOM.canvas.getContext('2d');
         
         const padsData = Array.from({length: NUM_PADS}, (_, i) => ({
-            id: i,
-            buffer: null,
-            originalBuffer: null,
-            reverse: false,
-            loop: false,
-            pitchSt: 0,
-            eq: { low: 0, mid: 0, high: 0 },
-            volume: 1.0,
-            trimStart: 0.0,
-            trimEnd: 1.0
+            id: i, buffer: null, originalBuffer: null, reverse: false, loop: false, pitchSt: 0,
+            eq: { low: 0, mid: 0, high: 0 }, volume: 1.0, trimStart: 0.0, trimEnd: 1.0
         }));
 
-        let activeSources = {}; // Track Web Audio buffer sources
-        let padIsPlaying = {}; // Track logical play state for toggle loops
+        let activeSources = {}; let padIsPlaying = {};
+
+        // === [추가] 신스 상태 및 동시 터치 관리 변수 ===
+        const waveTypes = ['sine', 'square', 'sawtooth', 'triangle'];
+        let currentWaveIndex = 0;
+        let activeSynthNodes = [];
+
+        let currentPressedRootBtn = null;
+        let currentPressedTypeBtn = null;
+        let currentPressedRoot = null;
+        let currentPressedType = null;
+
+        // === 화면 전환 통합 관리 함수 ===
 
         function initAudio() {
             if (audioCtx) return;
@@ -515,7 +555,8 @@
 
         function handlePadDown(id, el) {
             if (isEditSelectionMode) {
-                openEditView(id);
+                isEditSelectionMode = false; isEditMode = true; currentEditPadId = id;
+                updateUIState();
                 return;
             }
             
@@ -645,63 +686,80 @@
             isResizing = false;
         });
 
-        DOM.btnEditMode.addEventListener('click', () => {
-            if (isEditMode) {
-                closeEditView();
-            } else {
-                isEditSelectionMode = !isEditSelectionMode;
-                DOM.btnEditMode.classList.toggle('active-btn', isEditSelectionMode);
-                DOM.btnEditMode.innerText = isEditSelectionMode ? 'TAP PAD' : 'EDIT';
-                
-                Array.from(DOM.padGrid.children).forEach((pad, idx) => {
-                    if(isEditSelectionMode) {
-                        // buffer 또는 originalBuffer가 존재하는지 확인하여 하이라이트 톤 구분
-                        const hasSample = padsData[idx].buffer || padsData[idx].originalBuffer;
-                        if (hasSample) {
-                            pad.classList.add('edit-select-mode');
-                            pad.classList.remove('edit-select-dim');
-                        } else {
-                            pad.classList.add('edit-select-dim');
-                            pad.classList.remove('edit-select-mode');
-                        }
-                    } else {
-                        pad.classList.remove('edit-select-mode', 'edit-select-dim');
-                    }
-                });
-            }
-        });
-
-        function openEditView(id) {
-            isEditSelectionMode = false;
-            isEditMode = true;
-            currentEditPadId = id;
-            
-            Array.from(DOM.padGrid.children).forEach(pad => pad.classList.remove('edit-select-mode', 'edit-select-dim'));
+        // === 화면 전환 통합 관리 함수 ===
+        function updateUIState() {
             DOM.padGrid.classList.add('hidden-view');
-            DOM.editViewGrid.classList.remove('hidden-view');
+            DOM.editViewGrid.classList.add('hidden-view');
+            DOM.chordViewGrid.classList.add('hidden-view');
+            DOM.synthEditGrid.classList.add('hidden-view');
+            
             DOM.topRightMain.classList.add('hidden-view');
-            DOM.topRightEdit.classList.remove('hidden-view');
-            DOM.trimControls.classList.remove('hidden-view');
-            
-            DOM.btnEditMode.innerText = 'BACK';
-            DOM.btnEditMode.classList.add('active-btn');
-            
-            updateEditUI();
-            drawWaveform(padsData[currentEditPadId].buffer, padsData[currentEditPadId].trimStart, padsData[currentEditPadId].trimEnd);
+            DOM.topRightEdit.classList.add('hidden-view');
+            DOM.topRightSynth.classList.add('hidden-view');
+            DOM.trimControls.classList.add('hidden-view');
+
+            if (currentMode === 'sample') {
+                DOM.modeDisplay.innerText = 'SAMPLE MODE';
+                if (isEditMode) {
+                    DOM.editViewGrid.classList.remove('hidden-view');
+                    DOM.topRightEdit.classList.remove('hidden-view');
+                    DOM.trimControls.classList.remove('hidden-view');
+                    DOM.btnEditMode.classList.add('active-btn');
+                    DOM.btnEditMode.innerText = 'BACK';
+                    updateEditUI();
+                    drawWaveform(padsData[currentEditPadId].buffer, padsData[currentEditPadId].trimStart, padsData[currentEditPadId].trimEnd);
+                } else {
+                    DOM.padGrid.classList.remove('hidden-view');
+                    DOM.topRightMain.classList.remove('hidden-view');
+                    DOM.btnEditMode.innerText = isEditSelectionMode ? 'TAP PAD' : 'EDIT';
+                    DOM.btnEditMode.classList.toggle('active-btn', isEditSelectionMode);
+                    drawWaveform(null);
+                }
+            } else if (currentMode === 'chord') {
+                DOM.modeDisplay.innerText = 'CHORD MODE';
+                if (isEditMode) {
+                    DOM.synthEditGrid.classList.remove('hidden-view');
+                    DOM.topRightSynth.classList.remove('hidden-view');
+                    DOM.btnEditMode.classList.add('active-btn');
+                    DOM.btnEditMode.innerText = 'BACK';
+                } else {
+                    DOM.chordViewGrid.classList.remove('hidden-view');
+                    DOM.topRightSynth.classList.remove('hidden-view');
+                    DOM.btnEditMode.classList.remove('active-btn');
+                    DOM.btnEditMode.innerText = 'EDIT';
+                }
+            }
+            window.dispatchEvent(new Event('resize')); 
         }
 
-        function closeEditView() {
-            isEditMode = false;
-            DOM.editViewGrid.classList.add('hidden-view');
-            DOM.padGrid.classList.remove('hidden-view');
-            DOM.topRightEdit.classList.add('hidden-view');
-            DOM.topRightMain.classList.remove('hidden-view');
-            DOM.trimControls.classList.add('hidden-view');
-            
-            DOM.btnEditMode.innerText = 'EDIT';
-            DOM.btnEditMode.classList.remove('active-btn');
-            drawWaveform(null);
+        // 모드 변경 버튼 이벤트 (<, >)
+        DOM.btnModePrev.addEventListener('click', toggleMode);
+        DOM.btnModeNext.addEventListener('click', toggleMode);
+        function toggleMode() {
+            currentMode = (currentMode === 'sample') ? 'chord' : 'sample';
+            isEditMode = false; isEditSelectionMode = false;
+            resetSynthVisuals();
+            updateUIState();
         }
+
+        // EDIT 버튼 핸들러 통합
+        DOM.btnEditMode.addEventListener('click', () => {
+            if (currentMode === 'sample') {
+                if (isEditMode) {
+                    isEditMode = false;
+                } else {
+                    isEditSelectionMode = !isEditSelectionMode;
+                    Array.from(DOM.padGrid.children).forEach((pad, idx) => {
+                        const hasSample = padsData[idx].buffer || padsData[idx].originalBuffer;
+                        pad.classList.toggle('edit-select-mode', isEditSelectionMode && hasSample);
+                        pad.classList.toggle('edit-select-dim', isEditSelectionMode && !hasSample);
+                    });
+                }
+            } else if (currentMode === 'chord') {
+                isEditMode = !isEditMode;
+            }
+            updateUIState();
+        });
 
         function updateEditUI() {
             const pData = padsData[currentEditPadId];
@@ -1072,6 +1130,107 @@
         createPadElements();
         document.body.addEventListener('touchstart', initAudio, { once: true });
         document.body.addEventListener('mousedown', initAudio, { once: true });
+
+        // === [추가] 신스 코드 연주 엔진 (동시 터치 AND 로직) ===
+        
+        // 파형 변경 버튼
+        DOM.btnWaveSelect.addEventListener('click', () => {
+            currentWaveIndex = (currentWaveIndex + 1) % waveTypes.length;
+            // 3단계(다음 단계)에서 구현할 drawSynthWaveform() 함수 위치
+        });
+
+        // 모드 전환 시 눌림 상태 초기화
+        function resetSynthVisuals() {
+            if(currentPressedRootBtn) currentPressedRootBtn.classList.remove('chord-active-root');
+            if(currentPressedTypeBtn) currentPressedTypeBtn.classList.remove('chord-active-type');
+            currentPressedRootBtn = null; currentPressedTypeBtn = null;
+            currentPressedRoot = null; currentPressedType = null;
+        }
+
+        function checkAndPlaySynth() {
+            stopSynthChord(); 
+            // 근음과 코드 타입이 둘 다 눌려 있을 때만 재생 (AND 조건)
+            if (currentPressedRoot !== null && currentPressedType !== null) {
+                playSynthChord(currentPressedRoot, currentPressedType);
+            }
+        }
+
+        // 근음(Root) 버튼 이벤트 연결
+        document.querySelectorAll('.chord-root').forEach(btn => {
+            const press = (e) => {
+                e.preventDefault(); if (currentPressedRootBtn === btn) return;
+                initAudio();
+                if (currentPressedRootBtn) currentPressedRootBtn.classList.remove('chord-active-root');
+                btn.classList.add('chord-active-root');
+                currentPressedRootBtn = btn; currentPressedRoot = parseInt(btn.dataset.root);
+                checkAndPlaySynth();
+            };
+            const release = (e) => {
+                e.preventDefault();
+                if (currentPressedRootBtn === btn) {
+                    btn.classList.remove('chord-active-root');
+                    currentPressedRootBtn = null; currentPressedRoot = null;
+                    stopSynthChord(); // 하나라도 떼면 즉시 멈춤
+                }
+            };
+            btn.addEventListener('mousedown', press); btn.addEventListener('touchstart', press);
+            btn.addEventListener('mouseup', release); btn.addEventListener('touchend', release); btn.addEventListener('mouseleave', release);
+        });
+
+        // 코드 종류(Type) 버튼 이벤트 연결
+        document.querySelectorAll('.chord-type').forEach(btn => {
+            const press = (e) => {
+                e.preventDefault(); if (currentPressedTypeBtn === btn) return;
+                initAudio();
+                if (currentPressedTypeBtn) currentPressedTypeBtn.classList.remove('chord-active-type');
+                btn.classList.add('chord-active-type');
+                currentPressedTypeBtn = btn; currentPressedType = btn.dataset.type;
+                checkAndPlaySynth();
+            };
+            const release = (e) => {
+                e.preventDefault();
+                if (currentPressedTypeBtn === btn) {
+                    btn.classList.remove('chord-active-type');
+                    currentPressedTypeBtn = null; currentPressedType = null;
+                    stopSynthChord(); // 하나라도 떼면 즉시 멈춤
+                }
+            };
+            btn.addEventListener('mousedown', press); btn.addEventListener('touchstart', press);
+            btn.addEventListener('mouseup', release); btn.addEventListener('touchend', release); btn.addEventListener('mouseleave', release);
+        });
+
+        function playSynthChord(root, type) {
+            const baseFreq = 261.63; // 기준음 C4
+            const intervals = {
+                'maj': [0, 4, 7], 'min': [0, 3, 7], 'dom7': [0, 4, 7, 10], 'min7': [0, 3, 7, 10],
+                'dim': [0, 3, 6], 'aug': [0, 4, 8], 'sus2': [0, 2, 7], 'sus4': [0, 5, 7]
+            }[type];
+            const waveType = waveTypes[currentWaveIndex];
+
+            intervals.forEach(interval => {
+                const osc = audioCtx.createOscillator(); 
+                const gain = audioCtx.createGain();
+                osc.type = waveType; 
+                osc.frequency.value = baseFreq * Math.pow(2, (root + interval) / 12);
+                
+                // 부드러운 Attack
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1); 
+                
+                osc.connect(gain); gain.connect(masterGain); gain.connect(recordGain);
+                osc.start(); 
+                activeSynthNodes.push({ osc, gain });
+            });
+        }
+
+        function stopSynthChord() {
+            activeSynthNodes.forEach(node => {
+                // 부드러운 Release
+                node.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2); 
+                setTimeout(() => { try { node.osc.stop(); } catch(e){} }, 200);
+            });
+            activeSynthNodes = [];
+        }
 
         // 키보드 키와 패드 ID(0~15) 매핑 테이블
         // 키보드의 물리적 위치(e.code) 기준 패드 매핑 (한글/영문 자판 상태 무관)
