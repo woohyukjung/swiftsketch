@@ -1064,6 +1064,40 @@
         document.body.addEventListener('touchstart', initAudio, { once: true });
         document.body.addEventListener('mousedown', initAudio, { once: true });
 
+        // 키보드 키와 패드 ID(0~15) 매핑 테이블
+        // 키보드의 물리적 위치(e.code) 기준 패드 매핑 (한글/영문 자판 상태 무관)
+        const codeMap = {
+            // Row 1 (상단 숫자키)
+            'Digit4': 0,  'Digit5': 1,  'Digit6': 2,  'Digit7': 3,
+            // Row 2 (R T Y U)
+            'KeyR': 4,    'KeyT': 5,    'KeyY': 6,    'KeyU': 7,
+            // Row 3 (F G H J)
+            'KeyF': 8,    'KeyG': 9,    'KeyH': 10,   'KeyJ': 11,
+            // Row 4 (V B N M - 하단)
+            'KeyV': 12,   'KeyB': 13,   'KeyN': 14,   'KeyM': 15
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.repeat) return;
+
+            const padId = codeMap[e.code];
+            if (padId !== undefined) {
+                const padEl = DOM.padGrid.children[padId];
+                if (padEl) handlePadDown(padId, padEl);
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+
+            const padId = codeMap[e.code];
+            if (padId !== undefined) {
+                const padEl = DOM.padGrid.children[padId];
+                if (padEl) handlePadUp(padId, padEl);
+            }
+        });
+
     </script>
 </body>
 </html>
