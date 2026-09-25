@@ -282,43 +282,43 @@
                     <div id="synth-edit-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full hidden-view">
                         <!-- (1,1) Unison -->
                         <div class="col-start-1 col-span-1 row-start-1 row-span-1 bg-matte-pad sq-element flex flex-col items-center justify-center py-2">
-                            <span class="text-xxs text-matte-dim font-bold mb-2">UNISON</span>
-                            <div class="w-8 h-8 rounded-full border-2 border-neon-blue flex items-center justify-center text-xs text-matte-text">1</div>
+                            <span class="text-xxs text-matte-dim font-bold mb-1">UNISON</span>
+                            <input type="number" id="synth-unison" min="1" max="7" value="1" class="w-8 h-8 rounded-full border-2 border-neon-blue bg-transparent text-center text-xs text-matte-text outline-none m-0 p-0 cursor-pointer">
                         </div>
                         <!-- (2,1) Detune -->
                         <div class="col-start-1 col-span-1 row-start-2 row-span-1 bg-matte-pad sq-element flex flex-col items-center justify-center py-2">
-                            <span class="text-xxs text-matte-dim font-bold mb-2">DETUNE</span>
-                            <div class="w-8 h-8 rounded-full border-2 border-neon-blue flex items-center justify-center text-xs text-matte-text">0</div>
+                            <span class="text-xxs text-matte-dim font-bold mb-1">DETUNE</span>
+                            <input type="number" id="synth-detune" min="0" max="50" value="0" class="w-8 h-8 rounded-full border-2 border-neon-blue bg-transparent text-center text-xs text-matte-text outline-none m-0 p-0 cursor-pointer">
                         </div>
                         
                         <!-- (1,2) ~ (2,4): AHDSR Envelope 2x3 block -->
                         <div class="col-start-2 col-span-3 row-start-1 row-span-2 bg-matte-pad sq-element p-3 flex flex-col">
                             <span class="text-xs text-neon-blue font-bold tracking-widest mb-2 text-center">AHDSR ENVELOPE</span>
                             <div class="flex-1 grid grid-cols-5 gap-2 items-center h-full">
-                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">A</span><input type="range" class="h-slider" min="0" max="2" step="0.1" value="0.1"></div>
-                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">H</span><input type="range" class="h-slider" min="0" max="2" step="0.1" value="0.2"></div>
-                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">D</span><input type="range" class="h-slider" min="0" max="2" step="0.1" value="0.5"></div>
-                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">S</span><input type="range" class="h-slider" min="0" max="1" step="0.1" value="0.7"></div>
-                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">R</span><input type="range" class="h-slider" min="0.1" max="3" step="0.1" value="1.0"></div>
+                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">A</span><input type="range" id="synth-attack" class="h-slider" min="0.01" max="2" step="0.01" value="0.1"></div>
+                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">H</span><input type="range" id="synth-hold" class="h-slider" min="0" max="2" step="0.01" value="0.2"></div>
+                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">D</span><input type="range" id="synth-decay" class="h-slider" min="0.01" max="2" step="0.01" value="0.5"></div>
+                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">S</span><input type="range" id="synth-sustain" class="h-slider" min="0" max="1" step="0.01" value="0.7"></div>
+                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">R</span><input type="range" id="synth-release" class="h-slider" min="0.01" max="3" step="0.01" value="1.0"></div>
                             </div>
                         </div>
 
                         <!-- (3,1) ~ (4,4): 4 Band Vertical Sliders (EQ + Vol) -->
                         <div class="col-start-1 col-span-1 row-start-3 row-span-2 bg-matte-pad sq-element flex flex-col items-center py-3">
                             <span class="text-xxs text-matte-dim font-bold mb-2">LOW EQ</span>
-                            <input type="range" class="v-slider flex-1">
+                            <input type="range" id="synth-eq-low" class="v-slider flex-1" min="-12" max="12" step="0.1" value="0">
                         </div>
                         <div class="col-start-2 col-span-1 row-start-3 row-span-2 bg-matte-pad sq-element flex flex-col items-center py-3">
                             <span class="text-xxs text-matte-dim font-bold mb-2">MID EQ</span>
-                            <input type="range" class="v-slider flex-1">
+                            <input type="range" id="synth-eq-mid" class="v-slider flex-1" min="-12" max="12" step="0.1" value="0">
                         </div>
                         <div class="col-start-3 col-span-1 row-start-3 row-span-2 bg-matte-pad sq-element flex flex-col items-center py-3">
                             <span class="text-xxs text-matte-dim font-bold mb-2">HIGH EQ</span>
-                            <input type="range" class="v-slider flex-1">
+                            <input type="range" id="synth-eq-high" class="v-slider flex-1" min="-12" max="12" step="0.1" value="0">
                         </div>
                         <div class="col-start-4 col-span-1 row-start-3 row-span-2 bg-matte-pad sq-element flex flex-col items-center py-3">
                             <span class="text-xxs text-neon-blue font-bold mb-2">VOL</span>
-                            <input type="range" class="v-slider flex-1">
+                            <input type="range" id="synth-vol" class="v-slider flex-1" min="0" max="2" step="0.05" value="1">
                         </div>
                     </div>
                 </div>
@@ -395,7 +395,19 @@
             btnMetronome: document.getElementById('btn-metronome'),
             btnRecPerf: document.getElementById('btn-rec-perf'),
             btnPlayPerf: document.getElementById('btn-play-perf'),
-            btnExport: document.getElementById('btn-export')
+            btnExport: document.getElementById('btn-export'),
+            // [추가] 신스 파라미터 DOM 연결
+            synthUnison: document.getElementById('synth-unison'),
+            synthDetune: document.getElementById('synth-detune'),
+            synthAttack: document.getElementById('synth-attack'),
+            synthHold: document.getElementById('synth-hold'),
+            synthDecay: document.getElementById('synth-decay'),
+            synthSustain: document.getElementById('synth-sustain'),
+            synthRelease: document.getElementById('synth-release'),
+            synthEqLow: document.getElementById('synth-eq-low'),
+            synthEqMid: document.getElementById('synth-eq-mid'),
+            synthEqHigh: document.getElementById('synth-eq-high'),
+            synthVol: document.getElementById('synth-vol')
         };
 
         const NUM_PADS = 16;
@@ -423,6 +435,27 @@
         let currentWaveIndex = 0;
         let activeSynthNodes = [];
 
+        // 🎛 신스 파라미터 상태 객체 및 이벤트 리스너
+        const synthState = {
+            unison: 1, detune: 0,
+            env: { a: 0.1, h: 0.2, d: 0.5, s: 0.7, r: 1.0 },
+            eq: { low: 0, mid: 0, high: 0 },
+            vol: 1.0
+        };
+
+        // UI 조작 시 즉시 상태 업데이트
+        DOM.synthUnison.addEventListener('input', e => synthState.unison = parseInt(e.target.value) || 1);
+        DOM.synthDetune.addEventListener('input', e => synthState.detune = parseInt(e.target.value) || 0);
+        DOM.synthAttack.addEventListener('input', e => synthState.env.a = parseFloat(e.target.value));
+        DOM.synthHold.addEventListener('input', e => synthState.env.h = parseFloat(e.target.value));
+        DOM.synthDecay.addEventListener('input', e => synthState.env.d = parseFloat(e.target.value));
+        DOM.synthSustain.addEventListener('input', e => synthState.env.s = parseFloat(e.target.value));
+        DOM.synthRelease.addEventListener('input', e => synthState.env.r = parseFloat(e.target.value));
+        DOM.synthEqLow.addEventListener('input', e => synthState.eq.low = parseFloat(e.target.value));
+        DOM.synthEqMid.addEventListener('input', e => synthState.eq.mid = parseFloat(e.target.value));
+        DOM.synthEqHigh.addEventListener('input', e => synthState.eq.high = parseFloat(e.target.value));
+        DOM.synthVol.addEventListener('input', e => synthState.vol = parseFloat(e.target.value));
+
         let currentPressedRootBtn = null;
         let currentPressedTypeBtn = null;
         let currentPressedRoot = null;
@@ -433,14 +466,34 @@
         function initAudio() {
             if (audioCtx) return;
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // [추가] 마스터 출력 클리핑을 방지하는 리미터(Compressor) 생성
+            const masterLimiter = audioCtx.createDynamicsCompressor();
+            masterLimiter.threshold.value = -1.0; // -1dB 이상 올라가면 압축 시작 (클리핑 방지)
+            masterLimiter.knee.value = 0.0;       // 하드 니 (한계점 도달 시 즉각 개입)
+            masterLimiter.ratio.value = 20.0;     // 20:1의 강력한 압축 비율 (리미터 역할)
+            masterLimiter.attack.value = 0.005;   // 0.005초의 빠른 어택으로 피크 차단
+            masterLimiter.release.value = 0.05;   // 빠른 릴리즈로 답답함 방지
+
             masterGain = audioCtx.createGain();
-            masterGain.connect(audioCtx.destination);
+            masterGain.connect(masterLimiter);             // 마스터 게인 -> 리미터로 연결
+            masterLimiter.connect(audioCtx.destination);   // 리미터 -> 스피커 출력
+
+            // [추가] 녹음용 출력에도 동일한 리미터 적용 (WAV 파일 수출 시 깨짐 방지)
+            const recordLimiter = audioCtx.createDynamicsCompressor();
+            recordLimiter.threshold.value = -1.0;
+            recordLimiter.knee.value = 0.0;
+            recordLimiter.ratio.value = 20.0;
+            recordLimiter.attack.value = 0.005;
+            recordLimiter.release.value = 0.05;
 
             recordGain = audioCtx.createGain();
             recordGain.gain.value = 1.0;
+            recordGain.connect(recordLimiter);             // 녹음 게인 -> 녹음용 리미터로 연결
 
             destNode = audioCtx.createMediaStreamDestination();
-            recordGain.connect(destNode);
+            recordLimiter.connect(destNode);               // 리미터 -> 녹음기 출력
+            
             generateDefaultSounds().then(() => {
                 if (isEditSelectionMode) {
                     Array.from(DOM.padGrid.children).forEach((pad, idx) => {
@@ -553,9 +606,16 @@
             const pData = padsData[id];
             if (!pData.buffer) return;
 
-            // Stop previous if exists to prevent overlap glitches
+            // 💡 팝 노이즈 방지: 이전 샘플이 재생 중이면 0.015초간 아주 빠르게 페이드아웃 후 정지
             if (activeSources[id]) {
-                try { activeSources[id].stop(); } catch(e){}
+                const prev = activeSources[id];
+                const now = audioCtx.currentTime;
+                try {
+                    prev.gainNode.gain.cancelScheduledValues(now);
+                    prev.gainNode.gain.setValueAtTime(prev.gainNode.gain.value, now);
+                    prev.gainNode.gain.linearRampToValueAtTime(0, now + 0.015);
+                    setTimeout(() => { try { prev.source.stop(); } catch(e){} }, 20);
+                } catch(e) { try { prev.source.stop(); } catch(e){} }
             }
 
             const source = audioCtx.createBufferSource();
@@ -593,7 +653,9 @@
 
                 source.start(0, startOffset, playDuration);
             }
-            activeSources[id] = source;
+
+            // 수정: source만 저장하던 것을 gainNode와 함께 객체로 저장
+            activeSources[id] = { source: source, gainNode: gainNode };
 
             // Update UI
             drawWaveform(pData.buffer, pData.trimStart, pData.trimEnd);
@@ -1316,6 +1378,7 @@
             btn.addEventListener('mouseup', release); btn.addEventListener('touchend', release); btn.addEventListener('mouseleave', release);
         });
 
+        // 🎹 신스 오디오 엔진 (AHDSR, Unison, EQ 완벽 적용)
         function playSynthChord(root, type) {
             const baseFreq = 261.63; // 기준음 C4
             const intervals = {
@@ -1323,28 +1386,71 @@
                 'dim': [0, 3, 6], 'aug': [0, 4, 8], 'sus2': [0, 2, 7], 'sus4': [0, 5, 7]
             }[type];
             const waveType = waveTypes[currentWaveIndex];
+            const now = audioCtx.currentTime;
+
+            // 1. 마스터 EQ & VOL 라우팅 (코드 전체에 적용)
+            const synthMasterVol = audioCtx.createGain();
+            synthMasterVol.gain.value = synthState.vol;
+
+            const lowEQ = audioCtx.createBiquadFilter(); lowEQ.type = 'lowshelf'; lowEQ.frequency.value = 320; lowEQ.gain.value = synthState.eq.low;
+            const midEQ = audioCtx.createBiquadFilter(); midEQ.type = 'peaking'; midEQ.frequency.value = 1000; midEQ.Q.value = 0.5; midEQ.gain.value = synthState.eq.mid;
+            const highEQ = audioCtx.createBiquadFilter(); highEQ.type = 'highshelf'; highEQ.frequency.value = 3200; highEQ.gain.value = synthState.eq.high;
+
+            lowEQ.connect(midEQ); midEQ.connect(highEQ); highEQ.connect(synthMasterVol);
+            synthMasterVol.connect(masterGain); synthMasterVol.connect(recordGain);
+
+            const { a, h, d, s } = synthState.env;
 
             intervals.forEach(interval => {
-                const osc = audioCtx.createOscillator(); 
-                const gain = audioCtx.createGain();
-                osc.type = waveType; 
-                osc.frequency.value = baseFreq * Math.pow(2, (root + interval) / 12);
+                const targetFreq = baseFreq * Math.pow(2, (root + interval) / 12);
                 
-                // 부드러운 Attack
-                gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1); 
-                
-                osc.connect(gain); gain.connect(masterGain); gain.connect(recordGain);
-                osc.start(); 
-                activeSynthNodes.push({ osc, gain });
+                // 2. 유니즌(Unison) 및 디튠(Detune) 로직
+                for (let i = 0; i < synthState.unison; i++) {
+                    const osc = audioCtx.createOscillator(); 
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = waveType; 
+                    osc.frequency.value = targetFreq;
+                    
+                    // 디튠 값 분산 계산 (예: 3개일 경우 -20, 0, +20 cents)
+                    if (synthState.unison > 1) {
+                        const spread = (i / (synthState.unison - 1)) - 0.5;
+                        osc.detune.value = spread * 2 * synthState.detune;
+                    }
+                    
+                    // 3. AHDSR 엔벨로프 로직 (팝 노이즈 방지 및 볼륨 정규화)
+                    // 화음 개수와 유니즌 개수를 모두 곱해서 나누어주어 출력 초과로 인한 클리핑 완벽 방지 (전체 여유 공간 0.8)
+                    const maxVol = 0.8 / (synthState.unison * intervals.length); 
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(maxVol, now + a); // Attack
+                    gain.gain.setValueAtTime(maxVol, now + a + h); // Hold
+                    gain.gain.linearRampToValueAtTime(maxVol * s, now + a + h + d); // Decay -> Sustain
+                    
+                    osc.connect(gain); gain.connect(lowEQ);
+                    osc.start(); 
+                    activeSynthNodes.push({ osc, gain });
+                }
             });
         }
 
         function stopSynthChord() {
+            const now = audioCtx.currentTime;
+            const r = synthState.env.r; // Release 타임
+            
             activeSynthNodes.forEach(node => {
-                // 부드러운 Release
-                node.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2); 
-                setTimeout(() => { try { node.osc.stop(); } catch(e){} }, 200);
+                // 예약된 음량 변화 취소
+                node.gain.gain.cancelScheduledValues(now);
+                
+                // 팝 노이즈 방지 핵심: 현재 볼륨값을 명시적으로 고정하여 값이 0이나 1로 튀는 현상 원천 차단
+                node.gain.gain.setValueAtTime(node.gain.gain.value, now);
+                
+                // Release 타임에 맞춰 부드럽게 페이드아웃 (최소 0.015초 보장하여 딱딱거림 방지)
+                node.gain.gain.linearRampToValueAtTime(0, now + Math.max(0.015, r)); 
+                
+                // 메모리 해제
+                setTimeout(() => { 
+                    try { node.osc.stop(); node.osc.disconnect(); node.gain.disconnect(); } catch(e){} 
+                }, Math.max(0.015, r) * 1000 + 100);
             });
             activeSynthNodes = [];
         }
