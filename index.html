@@ -196,11 +196,11 @@
                         <input type="file" id="file-import" accept=".wav,.wave,.mp3,.m4a,.ogg,.aac,.flac" class="hidden" />
                     </div>
 
-                    <!-- [추가] Synth Mode: Wave Selector 1x1 -->
+                    <!-- Synth Mode (Play & Edit): Wave Selector 1x1 -->
                     <div id="top-right-synth" class="absolute inset-0 hidden-view">
                         <button id="btn-wave-select" class="w-full h-full bg-matte-pad sq-element flex flex-col items-center justify-center active:bg-matte-dim transition-colors">
                             <svg id="wave-icon" class="w-8 h-8 stroke-neon-blue fill-none" stroke-width="2" viewBox="0 0 24 24"><path d="M2 12 Q 7 2 12 12 T 22 12"></path></svg>
-                            <span class="text-xxs text-matte-text font-bold mt-1">WAVE</span>
+                            <span id="wave-name-display" class="text-xxs text-matte-text font-bold mt-1 tracking-widest">SIN</span>
                         </button>
                     </div>
                 </div>
@@ -1232,13 +1232,27 @@
             }
             canvasCtx.stroke();
 
-            // 파형 버튼(WAVE) 내부의 아이콘(SVG) 모양도 변경
+            // 파형 버튼 내부의 아이콘(SVG) 및 텍스트 3글자 약자 변경
             const waveIcon = document.getElementById('wave-icon');
-            if (waveIcon) {
-                if (type === 'sine') waveIcon.innerHTML = '<path d="M2 12 Q 7 2 12 12 T 22 12"></path>';
-                else if (type === 'square') waveIcon.innerHTML = '<path d="M2 12 L 2 6 L 12 6 L 12 18 L 22 18 L 22 12"></path>';
-                else if (type === 'sawtooth') waveIcon.innerHTML = '<path d="M2 18 L 12 6 L 12 18 L 22 6 L 22 18"></path>';
-                else if (type === 'triangle') waveIcon.innerHTML = '<path d="M2 12 L 7 4 L 17 20 L 22 12"></path>';
+            const waveName = document.getElementById('wave-name-display'); // 텍스트 엘리먼트 가져오기
+            
+            if (waveIcon && waveName) {
+                if (type === 'sine') {
+                    waveIcon.innerHTML = '<path d="M2 12 Q 7 2 12 12 T 22 12"></path>';
+                    waveName.innerText = 'SIN';
+                }
+                else if (type === 'square') {
+                    waveIcon.innerHTML = '<path d="M2 12 L 2 6 L 12 6 L 12 18 L 22 18 L 22 12"></path>';
+                    waveName.innerText = 'SQR';
+                }
+                else if (type === 'sawtooth') {
+                    waveIcon.innerHTML = '<path d="M2 18 L 12 6 L 12 18 L 22 6 L 22 18"></path>';
+                    waveName.innerText = 'SAW';
+                }
+                else if (type === 'triangle') {
+                    waveIcon.innerHTML = '<path d="M2 12 L 7 4 L 17 20 L 22 12"></path>';
+                    waveName.innerText = 'TRI';
+                }
             }
         }
 
