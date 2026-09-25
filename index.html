@@ -1362,14 +1362,28 @@
             'KeyV': 12,   'KeyB': 13,   'KeyN': 14,   'KeyM': 15
         };
 
+        // [추가] 현재 활성화된 모드에 맞는 패드 컨테이너(Grid)를 반환하는 헬퍼 함수
+        function getActiveGridForKeyboard() {
+            if (currentMode === 'sample') return DOM.padGrid;
+            if (currentMode === 'chord') return DOM.chordViewGrid;
+            // 추후 새로운 모드(예: drum, synth-lead 등)가 추가되면 여기에 한 줄만 추가하면 됩니다.
+            return null; 
+        }
+
         window.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT') return;
-            if (e.repeat) return;
+            if (e.repeat) return; // 꾹 누르고 있을 때 중복 실행 방지
 
             const padId = codeMap[e.code];
             if (padId !== undefined) {
-                const padEl = DOM.padGrid.children[padId];
-                if (padEl) handlePadDown(padId, padEl);
+                const activeGrid = getActiveGridForKeyboard();
+                if (activeGrid) {
+                    const padEl = activeGrid.children[padId];
+                    if (padEl) {
+                        // 실제 마우스/터치로 누른 것과 완벽히 동일한 이벤트를 강제 발생(Dispatch)
+                        padEl.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                    }
+                }
             }
         });
 
@@ -1378,8 +1392,15 @@
 
             const padId = codeMap[e.code];
             if (padId !== undefined) {
-                const padEl = DOM.padGrid.children[padId];
-                if (padEl) handlePadUp(padId, padEl);
+                const activeGrid = getActiveGridForKeyboard();
+                if (activeGrid) {
+                    const padEl = activeGrid.children[padId];
+                    if (padEl) {
+                        // 손을 떼었을 때의 이벤트 발생 (안전하게 mouseleave까지 호출)
+                        padEl.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+                        padEl.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+                    }
+                }
             }
         });
 
