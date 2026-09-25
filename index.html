@@ -781,12 +781,12 @@
                 DOM.modeDisplay.innerText = 'CHORD MODE';
                 if (isEditMode) {
                     DOM.synthEditGrid.classList.remove('hidden-view');
-                    DOM.topRightSynth.classList.remove('hidden-view');
+                    DOM.topRightSynth.classList.remove('hidden-view'); // EDIT 창일 때 WAVE 표시
                     DOM.btnEditMode.classList.add('active-btn');
                     DOM.btnEditMode.innerText = 'BACK';
                 } else {
                     DOM.chordViewGrid.classList.remove('hidden-view');
-                    DOM.topRightSynth.classList.remove('hidden-view');
+                    DOM.topRightMain.classList.remove('hidden-view'); // 연주 모드일 때 BPM & 메트로놈 표시
                     DOM.btnEditMode.classList.remove('active-btn');
                     DOM.btnEditMode.innerText = 'EDIT';
                 }
