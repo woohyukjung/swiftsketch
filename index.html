@@ -148,6 +148,27 @@
             background: #00E5FF;
             cursor: pointer;
         }
+
+        /* 🎛 Custom Rotary Knob Styling */
+        .knob-container {
+            width: 36px; height: 36px;
+            border-radius: 50%; border: 2px solid #00E5FF;
+            position: relative; cursor: ns-resize;
+            display: flex; align-items: center; justify-content: center;
+            background-color: #242424;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            touch-action: none; /* 모바일 스크롤 방지 */
+        }
+        .knob-pointer {
+            position: absolute; top: 0px; left: 50%;
+            width: 2px; height: 10px; background-color: #00E5FF;
+            transform-origin: 50% 16px; /* 36px의 중심 (18px - 테두리 2px) */
+            transform: translateX(-50%) rotate(-135deg);
+        }
+        .knob-val {
+            font-size: 10px; font-weight: bold; color: #e0e0e0;
+            pointer-events: none;
+        }
     </style>
 
 </head>
@@ -280,44 +301,73 @@
 
                     <!-- 4. Synth Edit Grid (Strict 4x4 Grid mapping) -->
                     <div id="synth-edit-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full hidden-view">
-                        <!-- (1,1) Unison -->
-                        <div class="col-start-1 col-span-1 row-start-1 row-span-1 bg-matte-pad sq-element flex flex-col items-center justify-center py-2">
-                            <span class="text-xxs text-matte-dim font-bold mb-1">UNISON</span>
-                            <input type="number" id="synth-unison" min="1" max="7" value="1" class="w-8 h-8 rounded-full border-2 border-neon-blue bg-transparent text-center text-xs text-matte-text outline-none m-0 p-0 cursor-pointer">
-                        </div>
-                        <!-- (2,1) Detune -->
-                        <div class="col-start-1 col-span-1 row-start-2 row-span-1 bg-matte-pad sq-element flex flex-col items-center justify-center py-2">
-                            <span class="text-xxs text-matte-dim font-bold mb-1">DETUNE</span>
-                            <input type="number" id="synth-detune" min="0" max="50" value="0" class="w-8 h-8 rounded-full border-2 border-neon-blue bg-transparent text-center text-xs text-matte-text outline-none m-0 p-0 cursor-pointer">
+                        
+                        <!-- [1행 1열] Unison Knob -->
+                        <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center justify-center py-1">
+                            <span class="text-[9px] text-matte-dim font-bold mb-1">UNISON</span>
+                            <div id="knob-unison" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">1</span></div>
                         </div>
                         
-                        <!-- (1,2) ~ (2,4): AHDSR Envelope 2x3 block -->
-                        <div class="col-start-2 col-span-3 row-start-1 row-span-2 bg-matte-pad sq-element p-3 flex flex-col">
-                            <span class="text-xs text-neon-blue font-bold tracking-widest mb-2 text-center">AHDSR ENVELOPE</span>
-                            <div class="flex-1 grid grid-cols-5 gap-2 items-center h-full">
-                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">A</span><input type="range" id="synth-attack" class="h-slider" min="0.01" max="2" step="0.01" value="0.1"></div>
-                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">H</span><input type="range" id="synth-hold" class="h-slider" min="0" max="2" step="0.01" value="0.2"></div>
-                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">D</span><input type="range" id="synth-decay" class="h-slider" min="0.01" max="2" step="0.01" value="0.5"></div>
-                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">S</span><input type="range" id="synth-sustain" class="h-slider" min="0" max="1" step="0.01" value="0.7"></div>
-                                <div class="flex flex-col items-center justify-center h-full w-full"><span class="text-xxs text-matte-text mb-1">R</span><input type="range" id="synth-release" class="h-slider" min="0.01" max="3" step="0.01" value="1.0"></div>
+                        <!-- [1행 2~4열] AHDSR Envelope -->
+                        <div class="col-span-3 bg-matte-pad sq-element p-2 flex flex-col justify-center">
+                            <span class="text-[9px] text-neon-blue font-bold tracking-widest mb-1 text-center">AHDSR ENVELOPE</span>
+                            <div class="flex-1 grid grid-cols-5 gap-1 items-center">
+                                <div class="flex flex-col items-center w-full"><span class="text-[9px] text-matte-text mb-1">A</span><input type="range" id="synth-attack" class="h-slider" min="0.01" max="2" step="0.01" value="0.1"></div>
+                                <div class="flex flex-col items-center w-full"><span class="text-[9px] text-matte-text mb-1">H</span><input type="range" id="synth-hold" class="h-slider" min="0" max="2" step="0.01" value="0.2"></div>
+                                <div class="flex flex-col items-center w-full"><span class="text-[9px] text-matte-text mb-1">D</span><input type="range" id="synth-decay" class="h-slider" min="0.01" max="2" step="0.01" value="0.5"></div>
+                                <div class="flex flex-col items-center w-full"><span class="text-[9px] text-matte-text mb-1">S</span><input type="range" id="synth-sustain" class="h-slider" min="0" max="1" step="0.01" value="0.7"></div>
+                                <div class="flex flex-col items-center w-full"><span class="text-[9px] text-matte-text mb-1">R</span><input type="range" id="synth-release" class="h-slider" min="0.01" max="3" step="0.01" value="1.0"></div>
                             </div>
                         </div>
 
-                        <!-- (3,1) ~ (4,4): 4 Band Vertical Sliders (EQ + Vol) -->
-                        <div class="col-start-1 col-span-1 row-start-3 row-span-2 bg-matte-pad sq-element flex flex-col items-center py-3">
-                            <span class="text-xxs text-matte-dim font-bold mb-2">LOW EQ</span>
+                        <!-- [2행 1열] Detune Knob -->
+                        <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center justify-center py-1">
+                            <span class="text-[9px] text-matte-dim font-bold mb-1">DETUNE</span>
+                            <div id="knob-detune" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">0</span></div>
+                        </div>
+                        
+                        <!-- [2행 2~4열] KEY & OCTAVE -->
+                        <div class="col-span-3 bg-matte-pad sq-element p-2 flex flex-col justify-center items-center">
+                            <span class="text-[9px] text-neon-blue font-bold tracking-widest mb-1">KEY & OCTAVE</span>
+                            <div class="flex gap-8">
+                                <div class="flex flex-col items-center"><div id="knob-key" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">C</span></div></div>
+                                <div class="flex flex-col items-center"><div id="knob-octave" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">OCT4</span></div></div>
+                            </div>
+                        </div>
+
+                        <!-- [3행 1~2열] REVERB -->
+                        <div class="col-span-2 bg-matte-pad sq-element flex flex-col items-center justify-center py-1">
+                            <span class="text-[9px] text-neon-blue font-bold tracking-widest mb-1">REVERB</span>
+                            <div class="flex gap-4">
+                                <div class="flex flex-col items-center"><span class="text-[8px] text-matte-dim mb-1">MIX</span><div id="knob-rev-mix" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">0</span></div></div>
+                                <div class="flex flex-col items-center"><span class="text-[8px] text-matte-dim mb-1">DEC</span><div id="knob-rev-dec" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">1.5</span></div></div>
+                            </div>
+                        </div>
+                        
+                        <!-- [3행 3~4열] DELAY -->
+                        <div class="col-span-2 bg-matte-pad sq-element flex flex-col items-center justify-center py-1">
+                            <span class="text-[9px] text-neon-blue font-bold tracking-widest mb-1">DELAY</span>
+                            <div class="flex gap-4">
+                                <div class="flex flex-col items-center"><span class="text-[8px] text-matte-dim mb-1">MIX</span><div id="knob-del-mix" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">0</span></div></div>
+                                <div class="flex flex-col items-center"><span class="text-[8px] text-matte-dim mb-1">F.B</span><div id="knob-del-fb" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">30</span></div></div>
+                            </div>
+                        </div>
+
+                        <!-- [4행 1~4열] EQ & VOL (짧은 세로) -->
+                        <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center py-2">
+                            <span class="text-[9px] text-matte-dim font-bold mb-1">LOW</span>
                             <input type="range" id="synth-eq-low" class="v-slider flex-1" min="-12" max="12" step="0.1" value="0">
                         </div>
-                        <div class="col-start-2 col-span-1 row-start-3 row-span-2 bg-matte-pad sq-element flex flex-col items-center py-3">
-                            <span class="text-xxs text-matte-dim font-bold mb-2">MID EQ</span>
+                        <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center py-2">
+                            <span class="text-[9px] text-matte-dim font-bold mb-1">MID</span>
                             <input type="range" id="synth-eq-mid" class="v-slider flex-1" min="-12" max="12" step="0.1" value="0">
                         </div>
-                        <div class="col-start-3 col-span-1 row-start-3 row-span-2 bg-matte-pad sq-element flex flex-col items-center py-3">
-                            <span class="text-xxs text-matte-dim font-bold mb-2">HIGH EQ</span>
+                        <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center py-2">
+                            <span class="text-[9px] text-matte-dim font-bold mb-1">HIGH</span>
                             <input type="range" id="synth-eq-high" class="v-slider flex-1" min="-12" max="12" step="0.1" value="0">
                         </div>
-                        <div class="col-start-4 col-span-1 row-start-3 row-span-2 bg-matte-pad sq-element flex flex-col items-center py-3">
-                            <span class="text-xxs text-neon-blue font-bold mb-2">VOL</span>
+                        <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center py-2">
+                            <span class="text-[9px] text-neon-blue font-bold mb-1">VOL</span>
                             <input type="range" id="synth-vol" class="v-slider flex-1" min="0" max="2" step="0.05" value="1">
                         </div>
                     </div>
@@ -438,14 +488,15 @@
         // 🎛 신스 파라미터 상태 객체 및 이벤트 리스너
         const synthState = {
             unison: 1, detune: 0,
+            key: 0, octave: 4, // 0=C, 1=Db... (키와 옥타브 추가)
+            reverb: { mix: 0, decay: 1.5 },
+            delay: { mix: 0, fb: 0.3 },
             env: { a: 0.1, h: 0.2, d: 0.5, s: 0.7, r: 1.0 },
             eq: { low: 0, mid: 0, high: 0 },
             vol: 1.0
         };
 
         // UI 조작 시 즉시 상태 업데이트
-        DOM.synthUnison.addEventListener('input', e => synthState.unison = parseInt(e.target.value) || 1);
-        DOM.synthDetune.addEventListener('input', e => synthState.detune = parseInt(e.target.value) || 0);
         DOM.synthAttack.addEventListener('input', e => synthState.env.a = parseFloat(e.target.value));
         DOM.synthHold.addEventListener('input', e => synthState.env.h = parseFloat(e.target.value));
         DOM.synthDecay.addEventListener('input', e => synthState.env.d = parseFloat(e.target.value));
@@ -455,6 +506,69 @@
         DOM.synthEqMid.addEventListener('input', e => synthState.eq.mid = parseFloat(e.target.value));
         DOM.synthEqHigh.addEventListener('input', e => synthState.eq.high = parseFloat(e.target.value));
         DOM.synthVol.addEventListener('input', e => synthState.vol = parseFloat(e.target.value));
+
+        // 🎛 마우스/터치 드래그용 커스텀 노브 헬퍼 함수
+        function setupKnob(id, stateObj, key, min, max, step, formatFn, onUpdate) {
+            const el = document.getElementById(id);
+            if(!el) return;
+            const pointer = el.querySelector('.knob-pointer');
+            const valText = el.querySelector('.knob-val');
+            let isDragging = false; let startY = 0; let startVal = 0;
+            
+            function render(v) {
+                const pct = (v - min) / (max - min);
+                const deg = -135 + (pct * 270); // 왼쪽 끝 -135도 ~ 오른쪽 끝 135도
+                pointer.style.transform = `translateX(-50%) rotate(${deg}deg)`;
+                valText.innerText = formatFn ? formatFn(v) : v;
+            }
+            
+            function setVal(newVal) {
+                newVal = Math.max(min, Math.min(max, newVal));
+                newVal = Math.round(newVal / step) * step;
+                newVal = parseFloat(newVal.toFixed(3)); // 소수점 오류 방지
+                stateObj[key] = newVal;
+                render(newVal);
+                if(onUpdate) onUpdate(newVal);
+            }
+            
+            const onDown = e => { isDragging = true; startY = e.clientY || e.touches[0].clientY; startVal = stateObj[key]; e.preventDefault(); };
+            const onMove = e => {
+                if(!isDragging) return;
+                const clientY = e.clientY || (e.touches ? e.touches[0].clientY : null);
+                if(clientY === null) return;
+                setVal(startVal + ((startY - clientY) * (max - min) / 150)); // 150px 드래그 시 전체 범위 이동
+            };
+            const onUp = () => isDragging = false;
+            
+            el.addEventListener('mousedown', onDown); el.addEventListener('touchstart', onDown, {passive: false});
+            window.addEventListener('mousemove', onMove); window.addEventListener('touchmove', onMove, {passive: false});
+            window.addEventListener('mouseup', onUp); window.addEventListener('touchend', onUp);
+            render(stateObj[key]); // 초기 렌더링
+        }
+
+        // 키(Key) 이름 및 패드 라벨 연동 로직
+        const keyNames = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+        function updateChordPads() {
+            document.querySelectorAll('.chord-root').forEach(btn => {
+                const interval = parseInt(btn.dataset.root); // C(0) 기준의 인터벌
+                const actualPitch = synthState.key + interval;
+                let name = keyNames[actualPitch % 12];
+                if (actualPitch >= 12 && interval > 0) name += '(+1)'; // 옥타브가 넘어갔을 때 표시
+                btn.innerText = name;
+            });
+        }
+
+        // 노브 이벤트 등록
+        setupKnob('knob-unison', synthState, 'unison', 1, 7, 1);
+        setupKnob('knob-detune', synthState, 'detune', 0, 50, 1);
+        setupKnob('knob-key', synthState, 'key', 0, 11, 1, v => keyNames[v], updateChordPads);
+        setupKnob('knob-octave', synthState, 'octave', 2, 6, 1, v => `OCT${v}`);
+        setupKnob('knob-rev-mix', synthState.reverb, 'mix', 0, 1, 0.01, v => Math.round(v*100));
+        setupKnob('knob-rev-dec', synthState.reverb, 'decay', 0.1, 5, 0.1, v => v.toFixed(1), updateReverbBuffer);
+        setupKnob('knob-del-mix', synthState.delay, 'mix', 0, 1, 0.01, v => Math.round(v*100));
+        setupKnob('knob-del-fb', synthState.delay, 'fb', 0, 0.9, 0.01, v => Math.round(v*100));
+        
+        updateChordPads(); // 시작할 때 라벨 동기화
 
         let currentPressedRootBtn = null;
         let currentPressedTypeBtn = null;
@@ -1378,9 +1492,57 @@
             btn.addEventListener('mouseup', release); btn.addEventListener('touchend', release); btn.addEventListener('mouseleave', release);
         });
 
-        // 🎹 신스 오디오 엔진 (AHDSR, Unison, EQ 완벽 적용)
+        // 🎛 전역 신스 FX 버스 선언
+        let fxInitialized = false;
+        let synthFXBus, convolver, reverbMix, delayNode, delayFb, delayMix;
+
+        function initSynthFX() {
+            if(fxInitialized || !audioCtx) return;
+            synthFXBus = audioCtx.createGain();
+            
+            // Reverb Setting
+            convolver = audioCtx.createConvolver();
+            reverbMix = audioCtx.createGain();
+            reverbMix.gain.value = synthState.reverb.mix;
+            updateReverbBuffer();
+            synthFXBus.connect(convolver); convolver.connect(reverbMix);
+            
+            // Delay Setting
+            delayNode = audioCtx.createDelay(2.0);
+            delayNode.delayTime.value = 0.375; // 점8분음표 느낌
+            delayFb = audioCtx.createGain();
+            delayFb.gain.value = synthState.delay.fb;
+            delayMix = audioCtx.createGain();
+            delayMix.gain.value = synthState.delay.mix;
+            synthFXBus.connect(delayNode); delayNode.connect(delayFb); delayFb.connect(delayNode); delayNode.connect(delayMix);
+            
+            // Routing to Master (DRY + WET)
+            synthFXBus.connect(masterGain); synthFXBus.connect(recordGain);
+            reverbMix.connect(masterGain); reverbMix.connect(recordGain);
+            delayMix.connect(masterGain); delayMix.connect(recordGain);
+            fxInitialized = true;
+        }
+
+        function updateReverbBuffer() {
+            if(!audioCtx || !convolver) return;
+            const decay = synthState.reverb.decay;
+            const rate = audioCtx.sampleRate;
+            const len = Math.max(1, rate * decay);
+            const imp = audioCtx.createBuffer(2, len, rate);
+            for(let c=0; c<2; c++) {
+                const data = imp.getChannelData(c);
+                for(let i=0; i<len; i++) data[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 3);
+            }
+            convolver.buffer = imp;
+        }
+        
+        // 🎹 신스 오디오 엔진 (FX 및 Key/Octave 완벽 연동)
         function playSynthChord(root, type) {
-            const baseFreq = 261.63; // 기준음 C4
+            initSynthFX(); // 연주 시 FX 초기화 확인
+            const c4Freq = 261.63; // 기준음 C4
+            // 선택한 옥타브와 조(Key)를 반영한 베이스 주파수 연산
+            const baseFreq = c4Freq * Math.pow(2, synthState.key / 12) * Math.pow(2, synthState.octave - 4);
+            
             const intervals = {
                 'maj': [0, 4, 7], 'min': [0, 3, 7], 'dom7': [0, 4, 7, 10], 'min7': [0, 3, 7, 10],
                 'dim': [0, 3, 6], 'aug': [0, 4, 8], 'sus2': [0, 2, 7], 'sus4': [0, 5, 7]
@@ -1388,7 +1550,6 @@
             const waveType = waveTypes[currentWaveIndex];
             const now = audioCtx.currentTime;
 
-            // 1. 마스터 EQ & VOL 라우팅 (코드 전체에 적용)
             const synthMasterVol = audioCtx.createGain();
             synthMasterVol.gain.value = synthState.vol;
 
@@ -1397,34 +1558,31 @@
             const highEQ = audioCtx.createBiquadFilter(); highEQ.type = 'highshelf'; highEQ.frequency.value = 3200; highEQ.gain.value = synthState.eq.high;
 
             lowEQ.connect(midEQ); midEQ.connect(highEQ); highEQ.connect(synthMasterVol);
-            synthMasterVol.connect(masterGain); synthMasterVol.connect(recordGain);
+            synthMasterVol.connect(synthFXBus); // FX 버스로 전송 (공간계 적용)
+
+            // (노브 값 실시간 업데이트 연동)
+            if(reverbMix) reverbMix.gain.value = synthState.reverb.mix;
+            if(delayMix) delayMix.gain.value = synthState.delay.mix;
+            if(delayFb) delayFb.gain.value = synthState.delay.fb;
 
             const { a, h, d, s } = synthState.env;
 
             intervals.forEach(interval => {
-                const targetFreq = baseFreq * Math.pow(2, (root + interval) / 12);
-                
-                // 2. 유니즌(Unison) 및 디튠(Detune) 로직
+                const targetFreq = baseFreq * Math.pow(2, interval / 12);
                 for (let i = 0; i < synthState.unison; i++) {
                     const osc = audioCtx.createOscillator(); 
                     const gain = audioCtx.createGain();
-                    
                     osc.type = waveType; 
                     osc.frequency.value = targetFreq;
-                    
-                    // 디튠 값 분산 계산 (예: 3개일 경우 -20, 0, +20 cents)
                     if (synthState.unison > 1) {
                         const spread = (i / (synthState.unison - 1)) - 0.5;
                         osc.detune.value = spread * 2 * synthState.detune;
                     }
-                    
-                    // 3. AHDSR 엔벨로프 로직 (팝 노이즈 방지 및 볼륨 정규화)
-                    // 화음 개수와 유니즌 개수를 모두 곱해서 나누어주어 출력 초과로 인한 클리핑 완벽 방지 (전체 여유 공간 0.8)
                     const maxVol = 0.8 / (synthState.unison * intervals.length); 
                     gain.gain.setValueAtTime(0, now);
-                    gain.gain.linearRampToValueAtTime(maxVol, now + a); // Attack
-                    gain.gain.setValueAtTime(maxVol, now + a + h); // Hold
-                    gain.gain.linearRampToValueAtTime(maxVol * s, now + a + h + d); // Decay -> Sustain
+                    gain.gain.linearRampToValueAtTime(maxVol, now + a); 
+                    gain.gain.setValueAtTime(maxVol, now + a + h); 
+                    gain.gain.linearRampToValueAtTime(maxVol * s, now + a + h + d);
                     
                     osc.connect(gain); gain.connect(lowEQ);
                     osc.start(); 
