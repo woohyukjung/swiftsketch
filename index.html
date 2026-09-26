@@ -75,7 +75,7 @@
         #bottom-controls {
             position: relative;
             width: 100%;
-            /* margin-top: 60px; 삭제 */
+            margin-bottom: max(12px, env(safe-area-inset-bottom));
             flex: 0 0 auto;
         }
 
@@ -198,7 +198,7 @@
         <div id="main-stage">
   
             <!-- Top Section: Waveform & Global Settings -->
-            <div class="grid grid-cols-4 w-full aspect-[4/1] gap-2 mb-2">
+            <div class="grid grid-cols-4 w-full aspect-[9/2] gap-2 mb-2">
                 
                 <!-- Left: Waveform (3컬럼 차지 = 3/4) -->
                 <div class="col-span-3 h-full bg-matte-pad sq-element relative waveform-frame overflow-hidden">
@@ -1703,8 +1703,9 @@
         function playSynthChord(root, type) {
             initSynthFX(); // 연주 시 FX 초기화 확인
             const c4Freq = 261.63; // 기준음 C4
-            // 선택한 옥타브와 조(Key)를 반영한 베이스 주파수 연산
-            const baseFreq = c4Freq * Math.pow(2, synthState.key / 12) * Math.pow(2, synthState.octave - 4);
+// 선택한 Key + 현재 패드의 scale degree를 실제 코드 근음으로 사용
+const rootPitch = synthState.key + root;
+const baseFreq = c4Freq * Math.pow(2, rootPitch / 12) * Math.pow(2, synthState.octave - 4);
             
             const intervals = {
                 'maj': [0, 4, 7], 'min': [0, 3, 7], 'dom7': [0, 4, 7, 10], 'min7': [0, 3, 7, 10],
