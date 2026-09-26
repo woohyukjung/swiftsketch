@@ -314,13 +314,14 @@
                         <!-- Row 3 -->
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="4">E</button>
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="11">B</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dim">DIM</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="aug">AUG</button>
-                        <!-- Row 4 -->
-                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="5">F</button>
-                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="12">C(+1)</button>
                         <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus2">SUS 2</button>
                         <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus4">SUS 4</button>
+
+                        <!-- Row 4 -->
+                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="5">F</button>
+                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="12">C<sub>+1</sub></button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dim">DIM</button>
+                        <button class="chord-type bg-matte-pad sq-element text-neon-orange text-sm font-bold flex items-center justify-center" data-type="auto">AUTO</button>
                     </div>
 
                     <!-- 4. Synth Edit Grid (Strict 4x4 Grid mapping) -->
@@ -1722,17 +1723,46 @@
         }
         
         // 🎹 신스 오디오 엔진 (FX 및 Key/Octave 완벽 연동)
-        function playSynthChord(root, type) {
+        function playSynthChord(rootInterval, type) {
             initSynthFX(); // 연주 시 FX 초기화 확인
             const c4Freq = 261.63; // 기준음 C4
-// 선택한 Key + 현재 패드의 scale degree를 실제 코드 근음으로 사용
-const rootPitch = synthState.key + root;
-const baseFreq = c4Freq * Math.pow(2, rootPitch / 12) * Math.pow(2, synthState.octave - 4);
             
+            // rootInterval(0~12) 변수를 바탕으로 실제 피치 계산
+            const rootPitch = synthState.key + rootInterval;
+            const baseFreq = c4Freq * Math.pow(2, rootPitch / 12) * Math.pow(2, synthState.octave - 4);
+            
+            let selectedType = type;
+
+            // AUTO 버튼을 눌렀을 경우, 현재 설정된 조(Key)를 기준으로 상대적인 다이아토닉 화성 자동 판별
+            if (type === 'auto') {
+                // rootInterval 자체(0, 2, 4, 5, 7, 9, 11, 12)가 현재 Key(synthState.key)로부터 
+                // 몇 반음 떨어져 있는지를 나타내는 상대적 음계 위치(Scale Degree)입니다.
+                // 1옥타브(+12 반음) 높은 음을 눌렀을 경우를 대비해 % 12를 해줍니다.
+                const relativeDegree = rootInterval % 12; 
+                
+                switch (relativeDegree) {
+                    case 0:  // 현재 조의 1도 (Tonic) -> Maj7
+                    case 5:  // 현재 조의 4도 (Subdominant) -> Maj7
+                        selectedType = 'maj7'; break;
+                    case 2:  // 현재 조의 2도 (Supertonic) -> Min7
+                    case 4:  // 현재 조의 3도 (Mediant) -> Min7
+                    case 9:  // 현재 조의 6도 (Submediant) -> Min7
+                        selectedType = 'min7'; break;
+                    case 7:  // 현재 조의 5도 (Dominant) -> Dom7
+                        selectedType = 'dom7'; break;
+                    case 11: // 현재 조의 7도 (Leading Tone) -> Dim
+                        selectedType = 'dim'; break;
+                    default: // 스케일 밖의 기타 반음 계열
+                        selectedType = 'maj'; break;
+                }
+            }
+
             const intervals = {
                 'maj': [0, 4, 7], 'min': [0, 3, 7], 'dom7': [0, 4, 7, 10], 'min7': [0, 3, 7, 10],
+                'maj7': [0, 4, 7, 11], // AUTO 기능을 위해 풍부한 Maj7 화음 배열 추가
                 'dim': [0, 3, 6], 'aug': [0, 4, 8], 'sus2': [0, 2, 7], 'sus4': [0, 5, 7]
-            }[type];
+            }[selectedType];
+
             const waveType = waveTypes[currentWaveIndex];
             const now = audioCtx.currentTime;
 
