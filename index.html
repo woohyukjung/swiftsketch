@@ -86,7 +86,7 @@
         /* 수정: 서서히 꺼지도록 transition 추가 */
         /* transition 속성을 !important로 지정하여 클래스가 떨어질 때 0.35초 동안 서서히 꺼지게 처리 */
         .bg-matte-pad { transition: background-color 0.35s ease-out !important, color 0.35s ease-out !important; }
-        .active-pad { background-color: #FF5500 !important; color: #1a1a1a !important; transition: none !important; }
+        .active-pad, .chord-active-root, .chord-active-type { background-color: #FF5500 !important; color: #1a1a1a !important; transition: none !important; }
         .active-btn { background-color: #FF5500 !important; color: #1a1a1a !important; }
         .recording { background-color: #FF5500 !important; color: #e0e0e0 !important; }
         .edit-select-mode { border: none !important; background-color: rgba(255, 85, 0, 0.35) !important; }
@@ -302,23 +302,23 @@
                     <!-- 3. Synth Chord Play Grid (패드 추가) -->
                     <div id="chord-view-grid" class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 w-full h-full hidden-view">
                         <!-- Row 1 -->
-                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="0">C</button>
-                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="7">G</button>
+                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="0">C</button>
+                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="7">G</button>
                         <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="maj">MAJ</button>
                         <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="min">MIN</button>
                         <!-- Row 2 -->
-                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="2">D</button>
-                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="9">A</button>
+                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="2">D</button>
+                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="9">A</button>
                         <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dom7">DOM 7</button>
                         <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="min7">MIN 7</button>
                         <!-- Row 3 -->
-                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="4">E</button>
-                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="11">B</button>
+                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="4">E</button>
+                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="11">B</button>
                         <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dim">DIM</button>
                         <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="aug">AUG</button>
                         <!-- Row 4 -->
-                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="5">F</button>
-                        <button class="chord-root bg-matte-pad sq-element text-neon-green text-2xl font-bold flex items-center justify-center" data-root="12">C(+1)</button>
+                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="5">F</button>
+                        <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="12">C(+1)</button>
                         <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus2">SUS 2</button>
                         <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus4">SUS 4</button>
                     </div>
@@ -598,8 +598,9 @@
                 const interval = parseInt(btn.dataset.root); 
                 const actualPitch = synthState.key + interval;
                 let name = keyNames[actualPitch % 12];
-                if (actualPitch >= 12 && interval > 0) name += '(+1)'; 
-                btn.innerText = name;
+                if (actualPitch >= 12 && interval > 0) name += '<sub>+1</sub>'; 
+                // HTML 태그(<sub>)가 실제 스타일로 반영되도록 innerHTML을 사용합니다.
+                btn.innerHTML = name;
             });
         }
 
