@@ -55,11 +55,14 @@
         /* Main Container Constraints */
         /* Main Container Constraints */
         #app-container {
-            /* 세로가 길어진 레이아웃을 모두 담을 수 있도록 1.65로 비율 조정 */
             width: min(95vw, 500px, calc((100dvh - 40px) / 1.65));
             height: 100dvh;
             position: relative;
             box-sizing: border-box;
+            
+            /* 아이폰 노치 및 하단 바를 침범하지 않도록 기기 안전 영역(Safe Area) 패딩 추가 */
+            padding-top: max(16px, env(safe-area-inset-top));
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
 
             display: flex;
             flex-direction: column;
@@ -75,7 +78,7 @@
         #bottom-controls {
             position: relative;
             width: 100%;
-            margin-bottom: max(12px, env(safe-area-inset-bottom));
+            margin-bottom: 0; /* 중앙 정렬 및 컨테이너 패딩으로 처리되므로 0으로 초기화 */
             flex: 0 0 auto;
         }
 
@@ -198,9 +201,11 @@
         <div id="main-stage">
   
             <!-- Top Section: Waveform & Global Settings -->
-            <div class="grid grid-cols-4 w-full aspect-[9/2] gap-2 mb-2">
+            <!-- 부모 컨테이너에서 강제 비율(aspect) 설정을 완전히 제거합니다 -->
+            <div class="grid grid-cols-4 w-full gap-2 mb-2">
                 
                 <!-- Left: Waveform (3컬럼 차지 = 3/4) -->
+                <!-- h-full이 설정되어 있으므로 옆의 정사각형 요소 높이에 맞춰 자동으로 꽉 차게 늘어납니다 -->
                 <div class="col-span-3 h-full bg-matte-pad sq-element relative waveform-frame overflow-hidden">
                     <div class="absolute inset-[6px] bg-matte-bg rounded-[10px] p-[6px] box-border overflow-hidden">
                         <canvas id="waveform-canvas" class="w-full h-full block"></canvas>
@@ -212,7 +217,7 @@
                 </div>
                 
                 <!-- Right: Buttons (1컬럼 차지 = 1/4) -->
-                <div class="col-span-1 h-full relative">
+                <div class="col-span-1 aspect-square relative">
                     <!-- Main View Buttons -->
                     <div id="top-right-main" class="absolute inset-0 flex flex-col gap-2">
                         <div class="flex-1 bg-matte-pad sq-element flex items-center justify-center px-1 p-0 m-0">
@@ -247,7 +252,8 @@
             </div>
 
             <!-- Middle Section: Square Grid Container + Edit & Nav Row -->
-            <div class="w-full flex flex-col gap-2 mb-2">
+            <!-- 패드 1칸( (100% - 갭3개) / 4 )의 절반 높이를 마진으로 부여합니다 -->
+            <div class="w-full flex flex-col gap-2" style="margin-bottom: calc((100% - 1.5rem) / 8);">
                 <!-- perfectly square aspect ratio container -->
                 <div class="relative w-full aspect-square">
                     
@@ -403,34 +409,49 @@
                 </div>
 
                 <!-- Nav Row: EDIT | < | MODE LABEL | > -->
-                <div class="flex w-full aspect-[8/1] gap-2">
-                    <button id="btn-edit-mode" class="w-1/4 h-full bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-green active:text-matte-bg transition-colors">EDIT</button>
-                    <button id="btn-mode-prev" class="w-1/6 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&lt;</button>
-                    <div id="mode-display" class="flex-1 h-full bg-matte-pad sq-element flex items-center justify-center text-matte-text text-sm font-bold tracking-widest transition-colors shadow-inner">SAMPLE MODE</div>
-                    <button id="btn-mode-next" class="w-1/6 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&gt;</button>
+                <div class="w-full relative">
+                    <!-- 하단 REC/PLAY 버튼과 1px의 오차도 없이 동일한 높이를 맞추기 위한 수학적 스페이서 -->
+                    <!-- 공식: ((전체너비 - 갭3개) / 8) - (갭 절반) = 정사각형 패드 1개 높이의 정확히 절반 -->
+                    <div style="padding-bottom: calc((100% - 1.5rem) / 8 - 0.25rem);"></div>
+                    
+                    <!-- 스페이서가 확보한 높이(inset-0) 위에 4x4 패드와 동일한 4칸짜리 그리드를 덮어씌웁니다 -->
+                    <div class="absolute inset-0 grid grid-cols-4 gap-2">
+                        <!-- 각 버튼이 패드와 완벽히 일치하는 1칸(col-span-1)씩 차지하게 됩니다 -->
+                        <button id="btn-edit-mode" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-green active:text-matte-bg transition-colors">EDIT</button>
+                        <button id="btn-mode-prev" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&lt;</button>
+                        
+                        <!-- 너비가 1칸으로 줄어들었으므로 텍스트가 넘치지 않도록 폰트 크기(text-[11px])와 자간(tracking-tighter)을 조절했습니다 -->
+                        <div id="mode-display" class="col-span-1 h-full bg-matte-pad sq-element flex items-center justify-center text-matte-text font-bold uppercase tracking-wider transition-colors shadow-inner text-center">SAMPLE</div>
+                        
+                        <button id="btn-mode-next" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&gt;</button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Bottom Section: 2 Rows x 4 Cols Grid -->
-        <div id="bottom-controls" class="w-full flex flex-col gap-2 mt-auto">
-            <!-- Row 1: 빈 공간(EDIT 자리) + REC / PLAY -->
-            <div class="grid grid-cols-4 w-full aspect-[8/1] gap-2">
-                <div class="col-span-2 h-full"></div>
-                <button id="btn-rec-perf" class="col-span-1 h-full bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
-                <button id="btn-play-perf" class="col-span-1 h-full bg-matte-pad sq-element text-neon-green flex items-center justify-center active:bg-neon-green active:text-matte-bg transition-colors">
-                    <svg class="w-9 h-9 fill-current" viewBox="0 0 24 24">
+        <!-- 전체를 감싸는 컨테이너 자체를 4등분 그리드로 선언 -->
+        <div id="bottom-controls" class="w-full relative grid grid-cols-4 gap-2">
+            
+            <!-- 패드 1개와 정확히 일치하는 높이를 강제하기 위한 투명 1x1 스페이서 -->
+            <div class="col-span-1 aspect-square pointer-events-none invisible"></div>
+            
+            <!-- 확보된 패드 1칸 높이 위에 실제 하단 UI를 4칸x2줄(4x2) 그리드로 덮어씌움 -->
+            <div class="absolute inset-0 grid grid-cols-4 grid-rows-2 gap-2">
+                <!-- Row 1: 빈 공간 + REC + PLAY -->
+                <div class="col-span-2 row-span-1"></div>
+                <button id="btn-rec-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
+                <button id="btn-play-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-green flex items-center justify-center active:bg-neon-green active:text-matte-bg transition-colors">
+                    <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"> <!-- 절반 높이에 맞춰 아이콘 약간 축소 (w-9 -> w-7) -->
                         <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"/>
                     </svg>
                 </button>
-            </div>
-            
-            <!-- Row 2: Logo / Export -->
-            <div class="grid grid-cols-4 w-full aspect-[8/1] gap-2">
-                <div id="logo-text" class="col-span-3 h-full flex items-end justify-start pl-1 pb-0.5 text-matte-text font-bold tracking-tighter lowercase leading-none select-none" style="font-size: 1.85rem;">
-                    swiftsketch
+                
+                <!-- Row 2: Logo + EXP -->
+                <div id="logo-text" class="col-span-3 row-span-1 flex items-end justify-start pl-1 pb-0 text-matte-text font-bold tracking-tighter lowercase leading-none select-none" style="font-size: 1.55rem;">
+                    swiftsketch <!-- 절반 높이에 맞춰 폰트 크기 약간 축소 (1.85rem -> 1.55rem) -->
                 </div>
-                <button id="btn-export" class="col-span-1 h-full bg-matte-pad sq-element text-matte-dim text-xs font-bold uppercase opacity-50 pointer-events-none transition-opacity flex items-center justify-center">EXP</button>
+                <button id="btn-export" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-dim text-xs font-bold uppercase opacity-50 pointer-events-none transition-opacity flex items-center justify-center">EXP</button>
             </div>
         </div>
 
@@ -1100,7 +1121,7 @@
             DOM.trimControls.classList.add('hidden-view');
 
             if (currentMode === 'sample') {
-                DOM.modeDisplay.innerText = 'SAMPLE MODE';
+                DOM.modeDisplay.innerText = 'SAMPLE';
                 if (isEditMode) {
                     DOM.editViewGrid.classList.remove('hidden-view');
                     DOM.topRightEdit.classList.remove('hidden-view');
@@ -1117,7 +1138,7 @@
                     drawWaveform(null);
                 }
             } else if (currentMode === 'chord') {
-                DOM.modeDisplay.innerText = 'CHORD MODE';
+                DOM.modeDisplay.innerText = 'CHORD';
                 if (isEditMode) {
                     DOM.synthEditGrid.classList.remove('hidden-view');
                     DOM.topRightSynth.classList.remove('hidden-view'); // EDIT 창일 때 WAVE 표시
