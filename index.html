@@ -199,6 +199,11 @@
     <div id="app-container">
 
         <div id="main-stage">
+
+            <!-- Logo (최상단으로 이동) -->
+            <div id="logo-text" class="w-full text-left pl-1 mb-2 text-matte-text font-bold tracking-tighter lowercase leading-none select-none text-xl">
+                swiftsketch
+            </div>
   
             <!-- Top Section: Waveform & Global Settings -->
             <!-- 부모 컨테이너에서 강제 비율(aspect) 설정을 완전히 제거합니다 -->
@@ -431,28 +436,32 @@
         </div>
 
         <!-- Bottom Section: 2 Rows x 4 Cols Grid -->
-        <!-- 전체를 감싸는 컨테이너 자체를 4등분 그리드로 선언 -->
         <div id="bottom-controls" class="w-full relative grid grid-cols-4 gap-2">
             
-            <!-- 패드 1개와 정확히 일치하는 높이를 강제하기 위한 투명 1x1 스페이서 -->
+            <!-- 패드 1개와 정확히 일치하는 높이를 강제하기 위한 투명 1x1 스페이서 (유지) -->
             <div class="col-span-1 aspect-square pointer-events-none invisible"></div>
             
             <!-- 확보된 패드 1칸 높이 위에 실제 하단 UI를 4칸x2줄(4x2) 그리드로 덮어씌움 -->
             <div class="absolute inset-0 grid grid-cols-4 grid-rows-2 gap-2">
-                <!-- Row 1: 빈 공간 + REC + PLAY -->
-                <div class="col-span-2 row-span-1"></div>
+                
+                <!-- Row 1: Loop Bar (3) + Loop Length (1) -->
+                <div id="loop-progress-container" class="col-span-3 row-span-1 bg-matte-pad sq-element relative overflow-hidden flex items-center justify-center">
+                    <!-- 루프 재생에 따라 너비(w-full)가 차오르는 프로그레스 바 -->
+                    <div id="loop-progress-fill" class="absolute left-0 top-0 bottom-0 bg-[rgba(57,255,20,0.2)] w-0 pointer-events-none transition-all duration-75"></div>
+                    <span class="relative z-10 text-xs font-bold text-matte-dim tracking-widest pointer-events-none">LOOP BAR</span>
+                </div>
+                <button id="btn-loop-length" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-text text-xs font-bold flex items-center justify-center active:bg-matte-dim transition-colors">4 BAR</button>
+                
+                <!-- Row 2: REC (1) + PLAY (1) + DEL (1) + EXP (1) -->
                 <button id="btn-rec-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
                 <button id="btn-play-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-green flex items-center justify-center active:bg-neon-green active:text-matte-bg transition-colors">
-                    <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"> <!-- 절반 높이에 맞춰 아이콘 약간 축소 (w-9 -> w-7) -->
+                    <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
                         <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"/>
                     </svg>
                 </button>
-                
-                <!-- Row 2: Logo + EXP -->
-                <div id="logo-text" class="col-span-3 row-span-1 flex items-end justify-start pl-1 pb-0 text-matte-text font-bold tracking-tighter lowercase leading-none select-none" style="font-size: 1.55rem;">
-                    swiftsketch <!-- 절반 높이에 맞춰 폰트 크기 약간 축소 (1.85rem -> 1.55rem) -->
-                </div>
+                <button id="btn-del-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-text text-xs font-bold flex items-center justify-center active:bg-neon-orange transition-colors">DEL</button>
                 <button id="btn-export" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-dim text-xs font-bold uppercase opacity-50 pointer-events-none transition-opacity flex items-center justify-center">EXP</button>
+                
             </div>
         </div>
 
@@ -497,6 +506,12 @@
             btnRecPerf: document.getElementById('btn-rec-perf'),
             btnPlayPerf: document.getElementById('btn-play-perf'),
             btnExport: document.getElementById('btn-export'),
+            
+            // [추가] 루프 기능 DOM 연결
+            btnLoopLength: document.getElementById('btn-loop-length'),
+            btnDelPerf: document.getElementById('btn-del-perf'),
+            loopProgressFill: document.getElementById('loop-progress-fill'),
+
             // [추가] 신스 파라미터 DOM 연결
             synthUnison: document.getElementById('synth-unison'),
             synthDetune: document.getElementById('synth-detune'),
@@ -516,11 +531,23 @@
         let recordedChunks = [];
         let performanceBlob = null, performanceWavBlob = null, performanceAudioUrl = null, performanceAudio = null;
 
+        // 루프 녹음 관련 상태 변수
+        const loopLengths = [1, 2, 4, 8]; // 선택 가능한 마디(Bar) 수
+        let currentLoopLengthIdx = 2; // 기본값: 4 BAR (인덱스 2)
+        let recordTimeout = null;
+        let progressAnimFrame = null;
+        let recordStartTime = 0;
+        let currentRecordDurationMs = 0;
+
         let currentMode = 'sample'; // 'sample' 또는 'chord'
         let isEditMode = false;
         let isEditSelectionMode = false;
         let currentEditPadId = 0;
-        let isRecordingPerf = false, isMetronomeOn = false, metronomeInterval = null, metroBeat = 0;
+        let isRecordingPerf = false, isMetronomeOn = false, isMetronomeRunning = false, metronomeInterval = null, metroBeat = 0;
+        
+        // 프리뷰(재생) 상태 관리를 위한 변수 추가
+        let isPlayingPreview = false;
+        let previewStartTime = 0;
         
         let canvasCtx = DOM.canvas.getContext('2d');
         
@@ -1343,56 +1370,139 @@
             }
         }
 
+        // ==========================================
+        // 1. 메트로놈 및 루프 타이머(엔진) 로직
+        // ==========================================
+        function updateMetronomeUI() {
+            const dots = DOM.btnMetronome.querySelectorAll('.metro-dot');
+            if (!isMetronomeOn) {
+                // 비활성화: 기본 상태 유지 (배경 복구, 점 4개 모두 밝은 회색)
+                DOM.btnMetronome.classList.add('bg-matte-pad');
+                DOM.btnMetronome.style.backgroundColor = '';
+                dots.forEach(dot => dot.style.backgroundColor = '#e0e0e0');
+            } else {
+                // 활성화: 배경 오렌지색
+                DOM.btnMetronome.classList.remove('bg-matte-pad');
+                DOM.btnMetronome.style.backgroundColor = '#FF5500';
+                
+                if (!isMetronomeRunning) {
+                    // 활성화 & 대기 중 (루프 엔진 정지): 점 4개 모두 어두운 색
+                    dots.forEach(dot => dot.style.backgroundColor = '#242424');
+                } else {
+                    // 활성화 & 재생 중: 현재 박자만 밝은 회색 (버그 3 수정: % 4 연산 추가)
+                    dots.forEach((dot, idx) => {
+                        dot.style.backgroundColor = (idx === (metroBeat % 4)) ? '#e0e0e0' : '#242424';
+                    });
+                }
+            }
+        }
+
+        function checkMetronomeRunning() {
+            // [버그 2 수정] 메트로놈 켜짐 여부와 상관없이, REC 중이거나 PLAY 중일 때만 루프 엔진 가동
+            const shouldRun = (isRecordingPerf || isPlayingPreview);
+            
+            if (shouldRun && !isMetronomeRunning) {
+                isMetronomeRunning = true;
+                metroBeat = 0;
+                const bpm = parseInt(DOM.bpmInput.value) || 120;
+                
+                metronomeInterval = setInterval(playMetronomeTick, (60 / bpm) * 1000);
+                playMetronomeTick(); // 즉시 첫 박자 출력
+            } else if (!shouldRun && isMetronomeRunning) {
+                isMetronomeRunning = false;
+                clearInterval(metronomeInterval);
+                updateMetronomeUI();
+            } else {
+                updateMetronomeUI();
+            }
+        }
+
         function playMetronomeTick() {
             if(!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.frequency.value = (metroBeat === 0) ? 1200 : 800; // 첫 박은 약간 명확한 톤으로 구분
-            osc.connect(gain); gain.connect(masterGain);
-            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            
+            updateMetronomeUI(); // 박자가 바뀔 때마다 색상 즉시 업데이트
 
-            // 점 4개 순차 점등 제어 (0, 1, 2, 3 순환)
-            const dots = DOM.btnMetronome.querySelectorAll('.metro-dot');
-            dots.forEach((dot, idx) => {
-                if (idx === metroBeat) {
-                    dot.style.backgroundColor = '#FF5500';
-                } else {
-                    dot.style.backgroundColor = '#e0e0e0';
-                }
-            });
+            // 메트로놈 소리 유무와 무관하게, 박자에 맞춰 루프 바 Step 이동
+            updateStepProgressUI();
 
-            metroBeat = (metroBeat + 1) % 4;
+            // 메트로놈이 켜져 있을 때만 실제 틱 소리 재생
+            if (isMetronomeOn) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.frequency.value = (metroBeat % 4 === 0) ? 1200 : 800; // 첫 박을 구별
+                osc.connect(gain); gain.connect(masterGain);
+                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            }
+
+            const bars = loopLengths[currentLoopLengthIdx];
+            const totalBeats = bars * 4;
+            metroBeat = (metroBeat + 1) % totalBeats; 
         }
 
         DOM.btnMetronome.addEventListener('click', () => {
             isMetronomeOn = !isMetronomeOn;
-            if (isMetronomeOn) {
-                initAudio();
-                metroBeat = 0;
-                const bpm = parseInt(DOM.bpmInput.value) || 120;
-                metronomeInterval = setInterval(playMetronomeTick, (60 / bpm) * 1000);
-                playMetronomeTick();
-            } else {
-                clearInterval(metronomeInterval);
-                metroBeat = 0;
-                const dots = DOM.btnMetronome.querySelectorAll('.metro-dot');
-                dots.forEach(dot => dot.style.backgroundColor = '#e0e0e0');
-            }
+            initAudio();
+            checkMetronomeRunning();
         });
 
         DOM.bpmInput.addEventListener('change', () => {
-            if(isMetronomeOn) {
+            if (isMetronomeRunning) {
                 clearInterval(metronomeInterval);
                 const bpm = parseInt(DOM.bpmInput.value) || 120;
                 metronomeInterval = setInterval(playMetronomeTick, (60 / bpm) * 1000);
             }
         });
+
+
+        // ==========================================
+        // 2. 루프 녹음 / 재생 / 삭제 로직
+        // ==========================================
+        DOM.btnLoopLength.addEventListener('click', () => {
+            currentLoopLengthIdx = (currentLoopLengthIdx + 1) % loopLengths.length;
+            DOM.btnLoopLength.innerText = `${loopLengths[currentLoopLengthIdx]} BAR`;
+        });
+
+        // 현재 박자(Beat)에 맞춰 루프 바를 Step 단위로 딱딱 움직이는 함수
+        function updateStepProgressUI() {
+            if (!isRecordingPerf && !isPlayingPreview) return;
+
+            const bars = loopLengths[currentLoopLengthIdx];
+            const totalBeats = bars * 4; 
+
+            const currentStep = (metroBeat % totalBeats);
+            const percent = ((currentStep + 1) / totalBeats) * 100;
+
+            DOM.loopProgressFill.style.transition = 'none';
+            DOM.loopProgressFill.style.width = `${percent}%`;
+            DOM.loopProgressFill.style.backgroundColor = isRecordingPerf ? 'rgba(255, 85, 0, 0.5)' : 'rgba(57, 255, 20, 0.4)';
+        }
+
+        function updateRecordDuration() {
+            const bpm = parseInt(DOM.bpmInput.value) || 120;
+            const bars = loopLengths[currentLoopLengthIdx];
+            const beats = bars * 4; 
+            currentRecordDurationMs = (beats * 60 / bpm) * 1000;
+        }
 
         DOM.btnRecPerf.addEventListener('click', () => {
             if (!isRecordingPerf) {
                 initAudio();
+                updateRecordDuration();
+                
+                if (isPlayingPreview) {
+                    isPlayingPreview = false;
+                    if (performanceAudio) performanceAudio.pause();
+                    DOM.btnPlayPerf.classList.remove('bg-neon-green', 'text-matte-bg');
+                    DOM.btnPlayPerf.classList.add('text-neon-green');
+                }
+
+                if (performanceAudioUrl) {
+                    URL.revokeObjectURL(performanceAudioUrl);
+                    performanceAudioUrl = null;
+                }
+
                 recordedChunks = [];
                 performanceWavBlob = null;
                 const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
@@ -1400,49 +1510,121 @@
                 mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
                 mediaRecorder.onstop = async () => {
                     performanceBlob = new Blob(recordedChunks, { type: mimeType });
-
                     if (performanceAudioUrl) URL.revokeObjectURL(performanceAudioUrl);
                     performanceAudioUrl = URL.createObjectURL(performanceBlob);
                     performanceAudio = new Audio(performanceAudioUrl);
+                    performanceAudio.loop = true;
 
                     try {
                         performanceWavBlob = await encodeWav(performanceBlob);
                         DOM.btnExport.classList.remove('opacity-50', 'pointer-events-none');
+                        
+                        DOM.loopProgressFill.style.transition = 'none';
+                        DOM.loopProgressFill.style.width = '100%';
+                        DOM.loopProgressFill.style.backgroundColor = 'rgba(224, 224, 224, 0.2)';
                     } catch (err) {
                         console.error('WAV conversion failed:', err);
-                        performanceWavBlob = null;
                         alert('WAV 변환에 실패했습니다.');
                     }
                 };
+                
                 mediaRecorder.start();
                 isRecordingPerf = true;
                 DOM.btnRecPerf.classList.add('recording');
                 DOM.btnRecPerf.classList.remove('text-neon-orange');
+
+                DOM.loopProgressFill.style.transition = 'none';
+                DOM.loopProgressFill.style.width = '0%';
+
+                // [버그 1 수정] 존재하지 않는 애니메이션 함수 호출 제거 및 엔진 가동
+                checkMetronomeRunning();
+
+                recordTimeout = setTimeout(() => {
+                    if (isRecordingPerf) stopLoopRecording();
+                }, currentRecordDurationMs);
+
             } else {
-                mediaRecorder.stop();
-                isRecordingPerf = false;
-                DOM.btnRecPerf.classList.remove('recording');
-                DOM.btnRecPerf.classList.add('text-neon-orange');
+                stopLoopRecording();
             }
         });
 
+        function stopLoopRecording() {
+            if (!isRecordingPerf) return;
+            mediaRecorder.stop();
+            isRecordingPerf = false;
+            DOM.btnRecPerf.classList.remove('recording');
+            DOM.btnRecPerf.classList.add('text-neon-orange');
+            clearTimeout(recordTimeout);
+            checkMetronomeRunning();
+        }
+
         DOM.btnPlayPerf.addEventListener('click', () => {
-            if(performanceAudio) {
-                if(performanceAudio.paused) {
+            initAudio(); 
+            updateRecordDuration(); 
+            
+            if (!isPlayingPreview) {
+                isPlayingPreview = true;
+                
+                if(performanceAudio) {
+                    performanceAudio.currentTime = 0; 
                     performanceAudio.play();
-                    DOM.btnPlayPerf.classList.add('bg-neon-green', 'text-matte-bg');
-                    DOM.btnPlayPerf.classList.remove('text-neon-green');
-                    performanceAudio.onended = () => {
-                        DOM.btnPlayPerf.classList.remove('bg-neon-green', 'text-matte-bg');
-                        DOM.btnPlayPerf.classList.add('text-neon-green');
-                    };
-                } else {
-                    performanceAudio.pause();
-                    performanceAudio.currentTime = 0;
-                    DOM.btnPlayPerf.classList.remove('bg-neon-green', 'text-matte-bg');
-                    DOM.btnPlayPerf.classList.add('text-neon-green');
                 }
+
+                DOM.btnPlayPerf.classList.add('bg-neon-green', 'text-matte-bg');
+                DOM.btnPlayPerf.classList.remove('text-neon-green');
+                
+                DOM.loopProgressFill.style.transition = 'none';
+                DOM.loopProgressFill.style.width = '0%';
+                
+                // [버그 1 수정] 엔진 가동
+                checkMetronomeRunning();
+                
+            } else {
+                isPlayingPreview = false;
+                
+                if(performanceAudio) {
+                    performanceAudio.pause();
+                }
+                
+                DOM.btnPlayPerf.classList.remove('bg-neon-green', 'text-matte-bg');
+                DOM.btnPlayPerf.classList.add('text-neon-green');
+                
+                DOM.loopProgressFill.style.transition = 'none';
+                DOM.loopProgressFill.style.width = '100%';
+                DOM.loopProgressFill.style.backgroundColor = 'rgba(224, 224, 224, 0.2)';
+                
+                checkMetronomeRunning();
             }
+        });
+
+        // [중복 리스너 제거] btnDelPerf 삭제/초기화 이벤트 리스너를 하나로 통합
+        DOM.btnDelPerf.addEventListener('click', () => {
+            if (isRecordingPerf) stopLoopRecording();
+            
+            if (isPlayingPreview) {
+                isPlayingPreview = false;
+                DOM.btnPlayPerf.classList.remove('bg-neon-green', 'text-matte-bg');
+                DOM.btnPlayPerf.classList.add('text-neon-green');
+            }
+
+            if (performanceAudio && !performanceAudio.paused) {
+                performanceAudio.pause();
+            }
+
+            recordedChunks = [];
+            performanceBlob = null;
+            performanceWavBlob = null;
+            if (performanceAudioUrl) {
+                URL.revokeObjectURL(performanceAudioUrl);
+                performanceAudioUrl = null;
+            }
+            performanceAudio = null;
+
+            DOM.loopProgressFill.style.transition = 'none';
+            DOM.loopProgressFill.style.width = '0%';
+            DOM.btnExport.classList.add('opacity-50', 'pointer-events-none');
+            
+            checkMetronomeRunning();
         });
 
         async function encodeWav(blob) {
