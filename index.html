@@ -228,7 +228,7 @@
                         <div class="flex-1 bg-matte-pad sq-element flex items-center justify-center px-1 p-0 m-0">
                             <div class="flex items-baseline justify-center">
                                 <input type="number" id="bpm-input" value="120" class="bg-transparent text-center text-matte-text font-bold outline-none text-lg p-0 m-0 leading-none block" style="width: 3ch;" />
-<span class="text-xxs text-matte-dim font-bold uppercase leading-none block ml-1">BPM</span>
+<span class="text-xxs text-matte-dim font-bold leading-none block ml-1">bpm</span>
                             </div>
                         </div>
                         <button id="btn-metronome" class="flex-1 bg-matte-pad sq-element flex items-center justify-center gap-1.5 p-0 m-0 active:bg-matte-dim transition-colors">
@@ -241,7 +241,7 @@
                     <!-- Edit View Buttons -->
                     <div id="top-right-edit" class="absolute inset-0 flex flex-col gap-2 hidden-view">
                         <button id="btn-mic-rec" class="flex-1 bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
-                        <button id="btn-import" class="flex-1 bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">IMPORT</button>
+                        <button id="btn-import" class="flex-1 bg-matte-pad sq-element text-matte-text font-bold tracking-wider active:bg-neon-orange active:text-matte-bg transition-colors">import</button>
                         <input type="file" id="file-import" accept=".wav,.wave,.mp3,.m4a,.ogg,.aac,.flac" class="hidden" />
                     </div>
 
@@ -249,7 +249,7 @@
                     <div id="top-right-synth" class="absolute inset-0 hidden-view">
                         <button id="btn-wave-select" class="w-full h-full bg-matte-pad sq-element relative flex items-center justify-center active:bg-matte-dim transition-colors">
                             <svg id="wave-icon" class="w-7 h-7 stroke-neon-blue fill-none absolute top-1/3 -translate-y-1/2" stroke-width="2" viewBox="0 0 24 24"><path d="M2 12 Q 7 2 12 12 T 22 12"></path></svg>
-                            <span id="wave-name-display" class="text-xs text-matte-text font-bold tracking-widest leading-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">SIN</span>
+                            <span id="wave-name-display" class="text-xs text-matte-text font-bold tracking-widest leading-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">sin</span>
                         </button>
                     </div>
                 </div>
@@ -286,19 +286,19 @@
                         <!-- Rows 3 & 4 (EQ & Vol) -->
                         <div class="col-span-4 row-span-2 grid grid-cols-4 gap-2 h-full">
                             <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
-                                <span class="text-xxs text-matte-dim font-bold mb-1">LOW</span>
+                                <span class="text-xxs text-matte-dim font-bold mb-1">low</span>
                                 <input type="range" id="eq-low" class="v-slider flex-1" min="-12" max="12" value="0">
                             </div>
                             <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
-                                <span class="text-xxs text-matte-dim font-bold mb-1">MID</span>
+                                <span class="text-xxs text-matte-dim font-bold mb-1">mid</span>
                                 <input type="range" id="eq-mid" class="v-slider flex-1" min="-12" max="12" value="0">
                             </div>
                             <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
-                                <span class="text-xxs text-matte-dim font-bold mb-1">HIGH</span>
+                                <span class="text-xxs text-matte-dim font-bold mb-1">high</span>
                                 <input type="range" id="eq-high" class="v-slider flex-1" min="-12" max="12" value="0">
                             </div>
                             <div class="bg-matte-pad sq-element flex flex-col items-center py-2 h-full">
-                                <span class="text-xxs text-neon-orange font-bold mb-1">VOL</span>
+                                <span class="text-xxs text-neon-orange font-bold mb-1">vol</span>
                                 <input type="range" id="vol-slider" class="v-slider flex-1" min="0" max="2" step="0.05" value="1">
                             </div>
                         </div>
@@ -309,24 +309,24 @@
                         <!-- Row 1 -->
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="0">C</button>
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="7">G</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="maj">MAJ</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="min">MIN</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="maj">maj</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="min">min</button>
                         <!-- Row 2 -->
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="2">D</button>
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="9">A</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dom7">DOM 7</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="min7">MIN 7</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dom7">dom7</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="min7">min7</button>
                         <!-- Row 3 -->
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="4">E</button>
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="11">B</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus2">SUS 2</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus4">SUS 4</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus2">sus2</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus4">sus4</button>
 
                         <!-- Row 4 -->
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="5">F</button>
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="12">C<sub>+1</sub></button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dim">DIM</button>
-                        <button class="chord-type bg-matte-pad sq-element text-neon-orange text-sm font-bold flex items-center justify-center" data-type="auto">AUTO</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dim">dim</button>
+                        <button class="chord-type bg-matte-pad sq-element text-neon-orange text-sm font-bold flex items-center justify-center" data-type="auto">auto</button>
                     </div>
 
                     <!-- 4. Synth Edit Grid (Strict 4x4 Grid mapping) -->
@@ -334,19 +334,19 @@
                         
                         <!-- [1행 1열] Unison Knob -->
                         <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center justify-center">
-                            <span class="text-[9px] text-matte-dim font-bold mb-1">UNISON</span>
+                            <span class="text-[9px] text-matte-dim font-bold mb-1">unison</span>
                             <div id="knob-unison" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">1</span></div>
                         </div>
                         
                         <!-- [1행 2~4열] AHDSR Visual Canvas -->
                         <div class="col-span-3 bg-matte-pad sq-element relative p-2 flex flex-col justify-end">
-                            <span class="text-[9px] text-neon-blue font-bold tracking-widest absolute top-2 left-0 right-0 text-center pointer-events-none">AHDSR ENVELOPE</span>
+                            <span class="text-[9px] text-neon-blue font-bold tracking-widest absolute top-2 left-0 right-0 text-center pointer-events-none">envelope</span>
                             <canvas id="ahdsr-canvas" class="w-full h-[72%] touch-none cursor-crosshair"></canvas>
                         </div>
 
                         <!-- [2행 1열] Detune Knob -->
                         <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center justify-center">
-                            <span class="text-[9px] text-matte-dim font-bold mb-1">DETUNE</span>
+                            <span class="text-[9px] text-matte-dim font-bold mb-1">detune</span>
                             <div id="knob-detune" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">0</span></div>
                         </div>
                         
@@ -371,44 +371,44 @@
                             <!-- Octave Controls -->
                             <div class="w-12 flex flex-col justify-between border-l border-matte-bg">
                                 <button id="btn-oct-up" class="flex-1 bg-matte-dim text-white flex items-center justify-center active:bg-neon-orange font-bold leading-none transition-colors">∧</button>
-                                <div class="h-1/3 flex items-center justify-center text-[9px] text-center bg-matte-pad font-bold leading-none text-matte-text tracking-tighter" id="oct-display">OCT 4</div>
+                                <div class="h-1/3 flex items-center justify-center text-[9px] text-center bg-matte-pad font-bold leading-none text-matte-text tracking-tighter" id="oct-display">oct 4</div>
                                 <button id="btn-oct-down" class="flex-1 bg-matte-dim text-white flex items-center justify-center active:bg-neon-orange font-bold leading-none transition-colors">∨</button>
                             </div>
                         </div>
 
                         <!-- [3행 1~2열] REVERB -->
                         <div class="col-span-2 bg-matte-pad sq-element flex flex-col items-center justify-center relative">
-    <span class="text-[9px] text-neon-blue font-bold tracking-widest absolute top-1 left-0 right-0 text-center pointer-events-none">REVERB</span>
+    <span class="text-[9px] text-neon-blue font-bold tracking-widest absolute top-1 left-0 right-0 text-center pointer-events-none">reverb</span>
     <div class="flex justify-around items-center w-full px-2">
-                                <div class="flex flex-col items-center w-full"><span class="text-[8px] text-matte-dim mb-0.5">MIX</span><div id="knob-rev-mix" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">0</span></div></div>
-                                <div class="flex flex-col items-center w-full"><span class="text-[8px] text-matte-dim mb-0.5">DEC</span><div id="knob-rev-dec" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">1.5</span></div></div>
+                                <div class="flex flex-col items-center w-full"><span class="text-[8px] text-matte-dim mb-0.5">mix</span><div id="knob-rev-mix" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">0</span></div></div>
+                                <div class="flex flex-col items-center w-full"><span class="text-[8px] text-matte-dim mb-0.5">dec</span><div id="knob-rev-dec" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">1.5</span></div></div>
                             </div>
                         </div>
                         
                         <!-- [3행 3~4열] DELAY -->
                         <div class="col-span-2 bg-matte-pad sq-element flex flex-col items-center justify-center relative">
-    <span class="text-[9px] text-neon-blue font-bold tracking-widest absolute top-1 left-0 right-0 text-center pointer-events-none">DELAY</span>
+    <span class="text-[9px] text-neon-blue font-bold tracking-widest absolute top-1 left-0 right-0 text-center pointer-events-none">delay</span>
     <div class="flex justify-around items-center w-full px-2">
-                                <div class="flex flex-col items-center w-full"><span class="text-[8px] text-matte-dim mb-0.5">MIX</span><div id="knob-del-mix" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">0</span></div></div>
-                                <div class="flex flex-col items-center w-full"><span class="text-[8px] text-matte-dim mb-0.5">F.B</span><div id="knob-del-fb" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">30</span></div></div>
+                                <div class="flex flex-col items-center w-full"><span class="text-[8px] text-matte-dim mb-0.5">mix</span><div id="knob-del-mix" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">0</span></div></div>
+                                <div class="flex flex-col items-center w-full"><span class="text-[8px] text-matte-dim mb-0.5">f.b</span><div id="knob-del-fb" class="knob-container"><div class="knob-pointer"></div><span class="knob-val">30</span></div></div>
                             </div>
                         </div>
 
                         <!-- [4행 1~4열] EQ & VOL (높이 최적화 h-full 및 padding 축소) -->
                         <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center py-1.5 h-full">
-                            <span class="text-[9px] text-matte-dim font-bold mb-1">LOW</span>
+                            <span class="text-[9px] text-matte-dim font-bold mb-1">low</span>
                             <input type="range" id="synth-eq-low" class="v-slider flex-1 min-h-[30px]" min="-12" max="12" step="0.1" value="0">
                         </div>
                         <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center py-1.5 h-full">
-                            <span class="text-[9px] text-matte-dim font-bold mb-1">MID</span>
+                            <span class="text-[9px] text-matte-dim font-bold mb-1">mid</span>
                             <input type="range" id="synth-eq-mid" class="v-slider flex-1 min-h-[30px]" min="-12" max="12" step="0.1" value="0">
                         </div>
                         <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center py-1.5 h-full">
-                            <span class="text-[9px] text-matte-dim font-bold mb-1">HIGH</span>
+                            <span class="text-[9px] text-matte-dim font-bold mb-1">high</span>
                             <input type="range" id="synth-eq-high" class="v-slider flex-1 min-h-[30px]" min="-12" max="12" step="0.1" value="0">
                         </div>
                         <div class="col-span-1 bg-matte-pad sq-element flex flex-col items-center py-1.5 h-full">
-                            <span class="text-[9px] text-neon-blue font-bold mb-1">VOL</span>
+                            <span class="text-[9px] text-neon-blue font-bold mb-1">vol</span>
                             <input type="range" id="synth-vol" class="v-slider flex-1 min-h-[30px]" min="0" max="2" step="0.05" value="1">
                         </div>
                     </div>
@@ -423,11 +423,11 @@
                     <!-- 스페이서가 확보한 높이(inset-0) 위에 4x4 패드와 동일한 4칸짜리 그리드를 덮어씌웁니다 -->
                     <div class="absolute inset-0 grid grid-cols-4 gap-2">
                         <!-- 각 버튼이 패드와 완벽히 일치하는 1칸(col-span-1)씩 차지하게 됩니다 -->
-                        <button id="btn-edit-mode" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold uppercase tracking-wider active:bg-neon-green active:text-matte-bg transition-colors">EDIT</button>
+                        <button id="btn-edit-mode" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold tracking-wider active:bg-neon-green active:text-matte-bg transition-colors">edit</button>
                         <button id="btn-mode-prev" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&lt;</button>
                         
                         <!-- 너비가 1칸으로 줄어들었으므로 텍스트가 넘치지 않도록 폰트 크기(text-[11px])와 자간(tracking-tighter)을 조절했습니다 -->
-                        <div id="mode-display" class="col-span-1 h-full bg-matte-pad sq-element flex items-center justify-center text-matte-text font-bold uppercase tracking-wider transition-colors shadow-inner text-center">SAMPLE</div>
+                        <div id="mode-display" class="col-span-1 h-full bg-matte-pad sq-element flex items-center justify-center text-matte-text font-bold tracking-wider transition-colors shadow-inner text-center">sample</div>
                         
                         <button id="btn-mode-next" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&gt;</button>
                     </div>
@@ -448,9 +448,9 @@
                 <div id="loop-progress-container" class="col-span-3 row-span-1 bg-matte-pad sq-element relative overflow-hidden flex items-center justify-center">
                     <!-- 루프 재생에 따라 너비(w-full)가 차오르는 프로그레스 바 -->
                     <div id="loop-progress-fill" class="absolute left-0 top-0 bottom-0 bg-[rgba(57,255,20,0.2)] w-0 pointer-events-none transition-all duration-75"></div>
-                    <span class="relative z-10 text-xs font-bold text-matte-dim tracking-widest pointer-events-none">LOOP BAR</span>
+                    <span class="relative z-10 text-xs font-bold text-matte-dim tracking-widest pointer-events-none">loop bar</span>
                 </div>
-                <button id="btn-loop-length" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-text text-xs font-bold flex items-center justify-center active:bg-matte-dim transition-colors">4 BAR</button>
+                <button id="btn-loop-length" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-text text-xs font-bold flex items-center justify-center active:bg-matte-dim transition-colors">4 bar</button>
                 
                 <!-- Row 2: REC (1) + PLAY (1) + DEL (1) + EXP (1) -->
                 <button id="btn-rec-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
@@ -459,8 +459,8 @@
                         <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"/>
                     </svg>
                 </button>
-                <button id="btn-del-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-text text-xs font-bold flex items-center justify-center active:bg-neon-orange transition-colors">DEL</button>
-                <button id="btn-export" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-dim text-xs font-bold uppercase opacity-50 pointer-events-none transition-opacity flex items-center justify-center">EXP</button>
+                <button id="btn-del-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-text text-xs font-bold flex items-center justify-center active:bg-neon-orange transition-colors">del</button>
+                <button id="btn-export" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-dim text-xs font-bold opacity-50 pointer-events-none transition-opacity flex items-center justify-center">exp</button>
                 
             </div>
         </div>
@@ -544,11 +544,16 @@
         let isEditSelectionMode = false;
         let currentEditPadId = 0;
         let isRecordingPerf = false, isMetronomeOn = false, isMetronomeRunning = false, metronomeInterval = null, metroBeat = 0;
-        
+        let isCountingIn = false, countInBeats = 0; // 카운트인 상태 관리를 위한 변수 추가
+
         // 프리뷰(재생) 상태 관리를 위한 변수 추가
         let isPlayingPreview = false;
         let previewStartTime = 0;
-        
+
+        let mainAnalyser = null;
+        let waveDataArray = null;
+        let realTimeAnimFrame = null;
+
         let canvasCtx = DOM.canvas.getContext('2d');
         
         const padsData = Array.from({length: NUM_PADS}, (_, i) => ({
@@ -643,7 +648,7 @@
                 const k = parseInt(key.dataset.key);
                 key.classList.toggle('piano-key-active', k === synthState.key);
             });
-            octDisplay.innerText = `OCT ${synthState.octave}`;
+            octDisplay.innerText = `oct ${synthState.octave}`;
         }
 
         pianoKeys.forEach(key => {
@@ -794,6 +799,11 @@
             if (audioCtx) return;
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             
+            // --- ★ 실시간 파형 분석기 복구 ---
+            mainAnalyser = audioCtx.createAnalyser();
+            mainAnalyser.fftSize = 1024;
+            waveDataArray = new Uint8Array(mainAnalyser.fftSize);
+
             // [추가] 마스터 출력 클리핑을 방지하는 리미터(Compressor) 생성
             const masterLimiter = audioCtx.createDynamicsCompressor();
             masterLimiter.threshold.value = -1.0; // -1dB 이상 올라가면 압축 시작 (클리핑 방지)
@@ -803,8 +813,10 @@
             masterLimiter.release.value = 0.05;   // 빠른 릴리즈로 답답함 방지
 
             masterGain = audioCtx.createGain();
-            masterGain.connect(masterLimiter);             // 마스터 게인 -> 리미터로 연결
-            masterLimiter.connect(audioCtx.destination);   // 리미터 -> 스피커 출력
+            // --- ★ 라우팅: 마스터 게인 -> 분석기 -> 리미터 -> 스피커 ---
+            masterGain.connect(mainAnalyser);
+            mainAnalyser.connect(masterLimiter);             
+            masterLimiter.connect(audioCtx.destination);
 
             // [추가] 녹음용 출력에도 동일한 리미터 적용 (WAV 파일 수출 시 깨짐 방지)
             const recordLimiter = audioCtx.createDynamicsCompressor();
@@ -830,7 +842,8 @@
                     });
                 }
             });
-            drawWaveform(null);
+            // 초기 파형 상태 시작
+            if (!isEditMode) renderRealtimeWaveform();
         }
 
         async function generateDefaultSounds() {
@@ -984,9 +997,9 @@
             // 수정: source만 저장하던 것을 gainNode와 함께 객체로 저장
             activeSources[id] = { source: source, gainNode: gainNode };
 
-            // Update UI
-            drawWaveform(pData.buffer, pData.trimStart, pData.trimEnd);
-            if(isEditMode) {
+            // Update UI (EDIT 모드일 때만 정적 파형 렌더링)
+            if (isEditMode) {
+                drawWaveform(pData.buffer, pData.trimStart, pData.trimEnd);
                 currentEditPadId = id;
                 updateEditUI();
             }
@@ -1039,6 +1052,40 @@
         }
 
         let isResizing = false;
+
+        // --- ★ 실시간 파형 렌더링 함수 복구 ---
+        function renderRealtimeWaveform() {
+            if (isEditMode || !mainAnalyser) return;
+
+            const dpr = window.devicePixelRatio || 1;
+            const width = DOM.canvas.width / dpr;
+            const height = DOM.canvas.height / dpr;
+
+            mainAnalyser.getByteTimeDomainData(waveDataArray);
+
+            canvasCtx.fillStyle = '#1a1a1a';
+            canvasCtx.fillRect(0, 0, width, height);
+
+            canvasCtx.lineWidth = 1.5;
+            canvasCtx.strokeStyle = '#00E5FF'; 
+            canvasCtx.beginPath();
+
+            const sliceWidth = width / waveDataArray.length;
+            let x = 0;
+
+            for (let i = 0; i < waveDataArray.length; i++) {
+                const v = waveDataArray[i] / 128.0; 
+                const y = (v * height) / 2;
+
+                if (i === 0) canvasCtx.moveTo(x, y);
+                else canvasCtx.lineTo(x, y);
+                x += sliceWidth;
+            }
+
+            canvasCtx.stroke();
+            realTimeAnimFrame = requestAnimationFrame(renderRealtimeWaveform);
+        }
+
         function drawWaveform(buffer, trimStart = 0, trimEnd = 1) {
             if (!isResizing) resizeCanvasInternal();
             
@@ -1126,12 +1173,16 @@
             resizeCanvasInternal();
             
             if (currentMode === 'chord') {
-                drawSynthWaveform();
+                if (isEditMode) {
+                    drawSynthWaveform();
+                } else if (!realTimeAnimFrame) {
+                    renderRealtimeWaveform();
+                }
             } else {
-                if(padsData && padsData[currentEditPadId] && isEditMode) {
+                if(isEditMode && padsData && padsData[currentEditPadId]) {
                     drawWaveform(padsData[currentEditPadId].buffer, padsData[currentEditPadId].trimStart, padsData[currentEditPadId].trimEnd);
-                } else {
-                    drawWaveform(null); 
+                } else if (!isEditMode && !realTimeAnimFrame) {
+                    renderRealtimeWaveform();
                 }
             }
             isResizing = false;
@@ -1150,34 +1201,44 @@
             DOM.trimControls.classList.add('hidden-view');
 
             if (currentMode === 'sample') {
-                DOM.modeDisplay.innerText = 'SAMPLE';
+                DOM.modeDisplay.innerText = 'sample';
                 if (isEditMode) {
+                    cancelAnimationFrame(realTimeAnimFrame);
+                    realTimeAnimFrame = null;
+                    
                     DOM.editViewGrid.classList.remove('hidden-view');
                     DOM.topRightEdit.classList.remove('hidden-view');
                     DOM.trimControls.classList.remove('hidden-view');
                     DOM.btnEditMode.classList.add('active-btn');
-                    DOM.btnEditMode.innerText = 'BACK';
+                    DOM.btnEditMode.innerText = 'back';
                     updateEditUI();
                     drawWaveform(padsData[currentEditPadId].buffer, padsData[currentEditPadId].trimStart, padsData[currentEditPadId].trimEnd);
                 } else {
+                    if(!realTimeAnimFrame) renderRealtimeWaveform();
+                    
                     DOM.padGrid.classList.remove('hidden-view');
                     DOM.topRightMain.classList.remove('hidden-view');
-                    DOM.btnEditMode.innerText = isEditSelectionMode ? 'TAP PAD' : 'EDIT';
+                    DOM.btnEditMode.innerText = isEditSelectionMode ? 'tap pad' : 'edit';
                     DOM.btnEditMode.classList.toggle('active-btn', isEditSelectionMode);
-                    drawWaveform(null);
                 }
             } else if (currentMode === 'chord') {
-                DOM.modeDisplay.innerText = 'CHORD';
+                DOM.modeDisplay.innerText = 'chord';
                 if (isEditMode) {
+                    cancelAnimationFrame(realTimeAnimFrame);
+                    realTimeAnimFrame = null;
+                    
                     DOM.synthEditGrid.classList.remove('hidden-view');
-                    DOM.topRightSynth.classList.remove('hidden-view'); // EDIT 창일 때 WAVE 표시
+                    DOM.topRightSynth.classList.remove('hidden-view');
                     DOM.btnEditMode.classList.add('active-btn');
-                    DOM.btnEditMode.innerText = 'BACK';
+                    DOM.btnEditMode.innerText = 'back';
+                    drawSynthWaveform();
                 } else {
+                    if(!realTimeAnimFrame) renderRealtimeWaveform();
+                    
                     DOM.chordViewGrid.classList.remove('hidden-view');
-                    DOM.topRightMain.classList.remove('hidden-view'); // 연주 모드일 때 BPM & 메트로놈 표시
+                    DOM.topRightMain.classList.remove('hidden-view');
                     DOM.btnEditMode.classList.remove('active-btn');
-                    DOM.btnEditMode.innerText = 'EDIT';
+                    DOM.btnEditMode.innerText = 'edit';
                 }
             }
             window.dispatchEvent(new Event('resize')); 
@@ -1398,8 +1459,8 @@
         }
 
         function checkMetronomeRunning() {
-            // [버그 2 수정] 메트로놈 켜짐 여부와 상관없이, REC 중이거나 PLAY 중일 때만 루프 엔진 가동
-            const shouldRun = (isRecordingPerf || isPlayingPreview);
+            // 카운트인 상태도 루프 엔진 가동 조건에 포함
+            const shouldRun = (isRecordingPerf || isPlayingPreview || isCountingIn);
             
             if (shouldRun && !isMetronomeRunning) {
                 isMetronomeRunning = true;
@@ -1407,7 +1468,7 @@
                 const bpm = parseInt(DOM.bpmInput.value) || 120;
                 
                 metronomeInterval = setInterval(playMetronomeTick, (60 / bpm) * 1000);
-                playMetronomeTick(); // 즉시 첫 박자 출력
+                playMetronomeTick(); 
             } else if (!shouldRun && isMetronomeRunning) {
                 isMetronomeRunning = false;
                 clearInterval(metronomeInterval);
@@ -1420,16 +1481,49 @@
         function playMetronomeTick() {
             if(!audioCtx) return;
             
-            updateMetronomeUI(); // 박자가 바뀔 때마다 색상 즉시 업데이트
+            updateMetronomeUI(); 
 
-            // 메트로놈 소리 유무와 무관하게, 박자에 맞춰 루프 바 Step 이동
+            // --- 4박자 카운트인 처리 로직 ---
+            if (isCountingIn) {
+                if (countInBeats > 0) {
+                    // 메트로놈 활성화 여부와 무관하게 카운트인 동안 강제 소리 재생
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.frequency.value = (countInBeats === 4) ? 1200 : 800; // 첫 박은 높은 음
+                    osc.connect(gain); gain.connect(masterGain);
+                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+
+                    const currentCount = 5 - countInBeats; // 1, 2, 3, 4 순서 생성
+                    const textLabel = document.querySelector('#loop-progress-container span');
+                    // --- 변경: 현재 카운트에 해당하는 숫자만 밝게 하이라이트 ---
+                    textLabel.innerHTML = [1, 2, 3, 4].map(n => 
+                        `<span style="color: ${n === currentCount ? '#e0e0e0' : '#444'}; margin: 0 6px; transition: color 0.1s;">${n}</span>`
+                    ).join('');
+
+                    DOM.loopProgressFill.style.width = `${(currentCount / 4) * 100}%`;
+                    DOM.loopProgressFill.style.backgroundColor = 'rgba(255, 85, 0, 0.8)';
+
+                    countInBeats--;
+                    return; // 카운트인 중에는 실제 녹음 바 진행 중지
+                } else {
+                    // 4번의 카운트 종료 후 정확히 1번째 박자에 실제 녹음 시작
+                    isCountingIn = false;
+                    const textLabel = document.querySelector('#loop-progress-container span');
+                    textLabel.innerText = "loop bar";
+                    metroBeat = 0; // 녹음 박자 카운트 초기화
+                    startActualRecording();
+                }
+            }
+
+            // (기존 일반 재생 로직)
             updateStepProgressUI();
 
-            // 메트로놈이 켜져 있을 때만 실제 틱 소리 재생
             if (isMetronomeOn) {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.frequency.value = (metroBeat % 4 === 0) ? 1200 : 800; // 첫 박을 구별
+                osc.frequency.value = (metroBeat % 4 === 0) ? 1200 : 800; 
                 osc.connect(gain); gain.connect(masterGain);
                 gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
@@ -1461,7 +1555,7 @@
         // ==========================================
         DOM.btnLoopLength.addEventListener('click', () => {
             currentLoopLengthIdx = (currentLoopLengthIdx + 1) % loopLengths.length;
-            DOM.btnLoopLength.innerText = `${loopLengths[currentLoopLengthIdx]} BAR`;
+            DOM.btnLoopLength.innerText = `${loopLengths[currentLoopLengthIdx]} bar`;
         });
 
         // 현재 박자(Beat)에 맞춰 루프 바를 Step 단위로 딱딱 움직이는 함수
@@ -1487,7 +1581,7 @@
         }
 
         DOM.btnRecPerf.addEventListener('click', () => {
-            if (!isRecordingPerf) {
+            if (!isRecordingPerf && !isCountingIn) {
                 initAudio();
                 updateRecordDuration();
                 
@@ -1503,52 +1597,80 @@
                     performanceAudioUrl = null;
                 }
 
-                recordedChunks = [];
-                performanceWavBlob = null;
-                const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
-                mediaRecorder = new MediaRecorder(destNode.stream, { mimeType });
-                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
-                mediaRecorder.onstop = async () => {
-                    performanceBlob = new Blob(recordedChunks, { type: mimeType });
-                    if (performanceAudioUrl) URL.revokeObjectURL(performanceAudioUrl);
-                    performanceAudioUrl = URL.createObjectURL(performanceBlob);
-                    performanceAudio = new Audio(performanceAudioUrl);
-                    performanceAudio.loop = true;
-
-                    try {
-                        performanceWavBlob = await encodeWav(performanceBlob);
-                        DOM.btnExport.classList.remove('opacity-50', 'pointer-events-none');
-                        
-                        DOM.loopProgressFill.style.transition = 'none';
-                        DOM.loopProgressFill.style.width = '100%';
-                        DOM.loopProgressFill.style.backgroundColor = 'rgba(224, 224, 224, 0.2)';
-                    } catch (err) {
-                        console.error('WAV conversion failed:', err);
-                        alert('WAV 변환에 실패했습니다.');
-                    }
-                };
-                
-                mediaRecorder.start();
-                isRecordingPerf = true;
+                // 즉시 녹음 대신 카운트인 상태로 진입
+                isCountingIn = true;
+                countInBeats = 4;
                 DOM.btnRecPerf.classList.add('recording');
                 DOM.btnRecPerf.classList.remove('text-neon-orange');
-
                 DOM.loopProgressFill.style.transition = 'none';
                 DOM.loopProgressFill.style.width = '0%';
+                
+                const textLabel = document.querySelector('#loop-progress-container span');
+                // 카운트 인 시작 시 1 2 3 4 텍스트 생성 ---
+                textLabel.innerHTML = [1, 2, 3, 4].map(n => 
+                    `<span style="color: ${n === 1 ? '#e0e0e0' : '#444'}; margin: 0 6px; transition: color 0.1s;">${n}</span>`
+                ).join('');
 
-                // [버그 1 수정] 존재하지 않는 애니메이션 함수 호출 제거 및 엔진 가동
-                checkMetronomeRunning();
-
-                recordTimeout = setTimeout(() => {
-                    if (isRecordingPerf) stopLoopRecording();
-                }, currentRecordDurationMs);
+                // 기존 메트로놈 엔진을 리셋하고 즉시 카운트인 첫 박자 가동
+                if (isMetronomeRunning) clearInterval(metronomeInterval);
+                isMetronomeRunning = true;
+                metroBeat = 0;
+                const bpm = parseInt(DOM.bpmInput.value) || 120;
+                metronomeInterval = setInterval(playMetronomeTick, (60 / bpm) * 1000);
+                playMetronomeTick(); 
 
             } else {
-                stopLoopRecording();
+                stopLoopRecording(); // 이미 녹음 중이거나 카운트인 중지
             }
         });
 
+        // 분리된 실제 녹음 시작 함수
+        function startActualRecording() {
+            recordedChunks = [];
+            performanceWavBlob = null;
+            const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+            mediaRecorder = new MediaRecorder(destNode.stream, { mimeType });
+            mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+            mediaRecorder.onstop = async () => {
+                performanceBlob = new Blob(recordedChunks, { type: mimeType });
+                if (performanceAudioUrl) URL.revokeObjectURL(performanceAudioUrl);
+                performanceAudioUrl = URL.createObjectURL(performanceBlob);
+                performanceAudio = new Audio(performanceAudioUrl);
+                performanceAudio.loop = true;
+
+                try {
+                    performanceWavBlob = await encodeWav(performanceBlob);
+                    DOM.btnExport.classList.remove('opacity-50', 'pointer-events-none');
+                    
+                    DOM.loopProgressFill.style.transition = 'none';
+                    DOM.loopProgressFill.style.width = '100%';
+                    DOM.loopProgressFill.style.backgroundColor = 'rgba(224, 224, 224, 0.2)';
+                } catch (err) {
+                    console.error('WAV conversion failed:', err);
+                    alert('WAV 변환에 실패했습니다.');
+                }
+            };
+            
+            mediaRecorder.start();
+            isRecordingPerf = true;
+
+            recordTimeout = setTimeout(() => {
+                if (isRecordingPerf) stopLoopRecording();
+            }, currentRecordDurationMs);
+        }
+
         function stopLoopRecording() {
+            if (isCountingIn) {
+                // 카운트인 도중 취소할 경우의 상태 복원
+                isCountingIn = false;
+                DOM.btnRecPerf.classList.remove('recording');
+                DOM.btnRecPerf.classList.add('text-neon-orange');
+                const textLabel = document.querySelector('#loop-progress-container span');
+                textLabel.innerText = "loop bar";
+                DOM.loopProgressFill.style.width = '0%';
+                checkMetronomeRunning();
+                return;
+            }
             if (!isRecordingPerf) return;
             mediaRecorder.stop();
             isRecordingPerf = false;
@@ -1733,6 +1855,9 @@
             }, 1000);
         });
 
+        // --- ★ 앱 시작 시 캔버스 초기 크기 1회 강제 할당 ---
+        resizeCanvasInternal();
+
         createPadElements();
         document.body.addEventListener('touchstart', initAudio, { once: true });
         document.body.addEventListener('mousedown', initAudio, { once: true });
@@ -1783,19 +1908,19 @@
             if (waveIcon && waveName) {
                 if (type === 'sine') {
                     waveIcon.innerHTML = '<path d="M2 12 Q 7 2 12 12 T 22 12"></path>';
-                    waveName.innerText = 'SIN';
+                    waveName.innerText = 'sin';
                 }
                 else if (type === 'square') {
                     waveIcon.innerHTML = '<path d="M2 12 L 2 6 L 12 6 L 12 18 L 22 18 L 22 12"></path>';
-                    waveName.innerText = 'SQR';
+                    waveName.innerText = 'sqr';
                 }
                 else if (type === 'sawtooth') {
                     waveIcon.innerHTML = '<path d="M2 18 L 12 6 L 12 18 L 22 6 L 22 18"></path>';
-                    waveName.innerText = 'SAW';
+                    waveName.innerText = 'saw';
                 }
                 else if (type === 'triangle') {
                     waveIcon.innerHTML = '<path d="M2 12 L 7 4 L 17 20 L 22 12"></path>';
-                    waveName.innerText = 'TRI';
+                    waveName.innerText = 'tri';
                 }
             }
         }
