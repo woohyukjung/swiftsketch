@@ -530,6 +530,10 @@
         let recordedChunks = [];
         let performanceBlob = null, performanceWavBlob = null, performanceAudioUrl = null, performanceAudio = null;
 
+        // 오버더빙 누적 및 재생을 위한 변수
+        let performanceAudioBuffer = null; 
+        let overdubSource = null;
+
         // 루프 녹음 관련 상태 변수
         const loopLengths = [1, 2, 4, 8]; // 선택 가능한 마디(Bar) 수
         let currentLoopLengthIdx = 2; // 기본값: 4 BAR (인덱스 2)
@@ -695,22 +699,40 @@
             const x4 = x3 + susW, y4 = y3;
             const x5 = x4 + r * scaleX, y5 = h - padY;
 
-            aCtx.beginPath(); aCtx.strokeStyle = '#e0e0e0'; aCtx.lineWidth = 2 * dpr;
-            aCtx.moveTo(x0, y0); aCtx.lineTo(x1, y1); aCtx.lineTo(x2, y2);
-            aCtx.lineTo(x3, y3); aCtx.lineTo(x4, y4); aCtx.lineTo(x5, y5);
+            // --- 1. AHDSR 파형 외곽선 그리기 ---
+            aCtx.beginPath(); 
+            aCtx.strokeStyle = '#e0e0e0'; 
+            aCtx.lineWidth = 2 * dpr;
+            aCtx.moveTo(x0, y0); 
+            aCtx.lineTo(x1, y1); 
+            aCtx.lineTo(x2, y2);
+            aCtx.lineTo(x3, y3); 
+            aCtx.lineTo(x4, y4); 
+            aCtx.lineTo(x5, y5);
             aCtx.stroke();
 
-            aCtx.lineTo(x5, h); aCtx.lineTo(x0, h);
-            aCtx.fillStyle = 'rgba(224, 224, 224, 0.1)'; aCtx.fill();
+            // --- 2. 파형 내부 반투명 채우기 ---
+            aCtx.lineTo(x5, h); 
+            aCtx.lineTo(x0, h);
+            aCtx.fillStyle = 'rgba(224, 224, 224, 0.1)'; 
+            aCtx.fill();
 
+            // --- 3. 고정점 (시작점 & Sustain 끝점) 그리기 ---
             aCtx.beginPath();
             aCtx.arc(x0, y0, 6 * dpr, 0, Math.PI * 2);
             aCtx.fillStyle = '#e0e0e0';
             aCtx.fill();
 
-            const nodes = [ {x: x0, y: y0}, {x: x1, y: y1}, {x: x2, y: y2}, {x: x3, y: y3}, {x: x5, y: y5} ];
+            aCtx.beginPath();
+            aCtx.arc(x4, y4, 6 * dpr, 0, Math.PI * 2);
+            aCtx.fillStyle = '#e0e0e0';
+            aCtx.fill();
+
+            // --- 4. 조작 가능한 4개 노드 (A, H, D, R)만 정확한 인덱스로 하이라이트 ---
+            const nodes = [ {x: x1, y: y1}, {x: x2, y: y2}, {x: x3, y: y3}, {x: x5, y: y5} ];
             nodes.forEach((node, idx) => {
-                aCtx.beginPath(); aCtx.arc(node.x, node.y, 6 * dpr, 0, Math.PI * 2);
+                aCtx.beginPath(); 
+                aCtx.arc(node.x, node.y, 6 * dpr, 0, Math.PI * 2);
                 aCtx.fillStyle = (activeAhdsrNode === idx) ? '#FF5500' : '#e0e0e0';
                 aCtx.fill();
             });
@@ -1627,6 +1649,17 @@
         function startActualRecording() {
             recordedChunks = [];
             performanceWavBlob = null;
+            
+            // --- ★ 오버더빙: 기존에 녹음된 루프가 있다면 녹음 시작과 동시에 재생하여 같이 녹음되게 함 ---
+            if (performanceAudioBuffer) {
+                overdubSource = audioCtx.createBufferSource();
+                overdubSource.buffer = performanceAudioBuffer;
+                // masterGain으로 보내 모니터링, recordGain으로 보내 다시 녹음(중첩)되도록 라우팅
+                overdubSource.connect(masterGain);
+                overdubSource.connect(recordGain);
+                overdubSource.start();
+            }
+
             const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
             mediaRecorder = new MediaRecorder(destNode.stream, { mimeType });
             mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
@@ -1638,6 +1671,10 @@
                 performanceAudio.loop = true;
 
                 try {
+                    // --- ★ 다음 오버더빙을 위해 이번에 녹음(중첩)된 결과물을 버퍼로 디코딩해둠 ---
+                    const arrayBuffer = await performanceBlob.arrayBuffer();
+                    performanceAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
                     performanceWavBlob = await encodeWav(performanceBlob);
                     DOM.btnExport.classList.remove('opacity-50', 'pointer-events-none');
                     
@@ -1659,6 +1696,12 @@
         }
 
         function stopLoopRecording() {
+            // 오버더빙 재생 소스 정지
+            if (overdubSource) {
+                try { overdubSource.stop(); } catch(e){}
+                overdubSource = null;
+            }
+
             if (isCountingIn) {
                 // 카운트인 도중 취소할 경우의 상태 복원
                 isCountingIn = false;
@@ -1740,6 +1783,13 @@
                 performanceAudioUrl = null;
             }
             performanceAudio = null;
+
+            // --- ★ 오버더빙 버퍼 및 재생 소스도 함께 초기화 ---
+            performanceAudioBuffer = null; 
+            if (overdubSource) {
+                try { overdubSource.stop(); } catch(e){}
+                overdubSource = null;
+            }
 
             DOM.loopProgressFill.style.transition = 'none';
             DOM.loopProgressFill.style.width = '0%';
