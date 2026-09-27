@@ -309,24 +309,24 @@
                         <!-- Row 1 -->
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="0">C</button>
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="7">G</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="maj">maj</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="min">min</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim font-bold flex items-center justify-center" data-type="maj">maj</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim font-bold flex items-center justify-center" data-type="min">min</button>
                         <!-- Row 2 -->
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="2">D</button>
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="9">A</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dom7">dom7</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="min7">min7</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim font-bold flex items-center justify-center" data-type="dom7">dom7</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim font-bold flex items-center justify-center" data-type="min7">min7</button>
                         <!-- Row 3 -->
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="4">E</button>
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="11">B</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus2">sus2</button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="sus4">sus4</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim font-bold flex items-center justify-center" data-type="sus2">sus2</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim font-bold flex items-center justify-center" data-type="sus4">sus4</button>
 
                         <!-- Row 4 -->
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="5">F</button>
                         <button class="chord-root bg-matte-pad sq-element text-matte-text text-2xl font-bold flex items-center justify-center" data-root="12">C<sub>+1</sub></button>
-                        <button class="chord-type bg-matte-pad sq-element text-matte-dim text-sm font-bold flex items-center justify-center" data-type="dim">dim</button>
-                        <button class="chord-type bg-matte-pad sq-element text-neon-orange text-sm font-bold flex items-center justify-center" data-type="auto">auto</button>
+                        <button class="chord-type bg-matte-pad sq-element text-matte-dim font-bold flex items-center justify-center" data-type="dim">dim</button>
+                        <button class="chord-type bg-matte-pad sq-element text-neon-orange font-bold flex items-center justify-center" data-type="auto">auto</button>
                     </div>
 
                     <!-- 4. Synth Edit Grid (Strict 4x4 Grid mapping) -->
@@ -416,20 +416,22 @@
 
                 <!-- Nav Row: EDIT | < | MODE LABEL | > -->
                 <div class="w-full relative">
-                    <!-- 하단 REC/PLAY 버튼과 1px의 오차도 없이 동일한 높이를 맞추기 위한 수학적 스페이서 -->
-                    <!-- 공식: ((전체너비 - 갭3개) / 8) - (갭 절반) = 정사각형 패드 1개 높이의 정확히 절반 -->
                     <div style="padding-bottom: calc((100% - 1.5rem) / 8 - 0.25rem);"></div>
                     
-                    <!-- 스페이서가 확보한 높이(inset-0) 위에 4x4 패드와 동일한 4칸짜리 그리드를 덮어씌웁니다 -->
                     <div class="absolute inset-0 grid grid-cols-4 gap-2">
-                        <!-- 각 버튼이 패드와 완벽히 일치하는 1칸(col-span-1)씩 차지하게 됩니다 -->
                         <button id="btn-edit-mode" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold tracking-wider active:bg-neon-green active:text-matte-bg transition-colors">edit</button>
-                        <button id="btn-mode-prev" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&lt;</button>
                         
-                        <!-- 너비가 1칸으로 줄어들었으므로 텍스트가 넘치지 않도록 폰트 크기(text-[11px])와 자간(tracking-tighter)을 조절했습니다 -->
+                        <!-- 이전 모드 버튼 (좌측 방향 삼각형) -->
+                        <button id="btn-mode-prev" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text flex items-center justify-center active:bg-matte-dim transition-colors">
+                            <svg class="w-6 h-6 fill-current rotate-180" viewBox="0 0 24 24"><path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"/></svg>
+                        </button>
+                        
                         <div id="mode-display" class="col-span-1 h-full bg-matte-pad sq-element flex items-center justify-center text-matte-text font-bold tracking-wider transition-colors shadow-inner text-center">sample</div>
                         
-                        <button id="btn-mode-next" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text font-bold text-xl active:bg-matte-dim transition-colors">&gt;</button>
+                        <!-- 다음 모드 버튼 (우측 방향 삼각형) -->
+                        <button id="btn-mode-next" class="col-span-1 h-full bg-matte-pad sq-element text-matte-text flex items-center justify-center active:bg-matte-dim transition-colors">
+                            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"/></svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -437,20 +439,17 @@
 
         <!-- Bottom Section: 2 Rows x 4 Cols Grid -->
         <div id="bottom-controls" class="w-full relative grid grid-cols-4 gap-2">
-            
-            <!-- 패드 1개와 정확히 일치하는 높이를 강제하기 위한 투명 1x1 스페이서 (유지) -->
             <div class="col-span-1 aspect-square pointer-events-none invisible"></div>
             
-            <!-- 확보된 패드 1칸 높이 위에 실제 하단 UI를 4칸x2줄(4x2) 그리드로 덮어씌움 -->
             <div class="absolute inset-0 grid grid-cols-4 grid-rows-2 gap-2">
-                
                 <!-- Row 1: Loop Bar (3) + Loop Length (1) -->
                 <div id="loop-progress-container" class="col-span-3 row-span-1 bg-matte-pad sq-element relative overflow-hidden flex items-center justify-center">
                     <!-- 루프 재생에 따라 너비(w-full)가 차오르는 프로그레스 바 -->
                     <div id="loop-progress-fill" class="absolute left-0 top-0 bottom-0 bg-[rgba(57,255,20,0.2)] w-0 pointer-events-none transition-all duration-75"></div>
-                    <span class="relative z-10 text-xs font-bold text-matte-dim tracking-widest pointer-events-none">loop bar</span>
+                    <span class="relative z-10 font-bold text-matte-dim tracking-widest pointer-events-none">loop bar</span>
                 </div>
-                <button id="btn-loop-length" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-text text-xs font-bold flex items-center justify-center active:bg-matte-dim transition-colors">4 bar</button>
+                <!-- 4 bar 텍스트 크기 원복 (text-xs 제거) -->
+                <button id="btn-loop-length" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-text font-bold flex items-center justify-center active:bg-matte-dim transition-colors">4 bar</button>
                 
                 <!-- Row 2: REC (1) + PLAY (1) + DEL (1) + EXP (1) -->
                 <button id="btn-rec-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-neon-orange text-2xl flex items-center justify-center active:bg-neon-orange active:text-white transition-colors">●</button>
@@ -459,9 +458,9 @@
                         <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"/>
                     </svg>
                 </button>
-                <button id="btn-del-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-text text-xs font-bold flex items-center justify-center active:bg-neon-orange transition-colors">del</button>
-                <button id="btn-export" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-dim text-xs font-bold opacity-50 pointer-events-none transition-opacity flex items-center justify-center">exp</button>
-                
+                <!-- del, exp 텍스트 크기 원복 (text-xs 제거) -->
+                <button id="btn-del-perf" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-text font-bold flex items-center justify-center active:bg-neon-orange transition-colors">del</button>
+                <button id="btn-export" class="col-span-1 row-span-1 bg-matte-pad sq-element text-matte-dim font-bold opacity-50 pointer-events-none transition-opacity flex items-center justify-center">exp</button>
             </div>
         </div>
 
